@@ -1,0 +1,141 @@
+---
+description: server guidelines
+globs: src/server/**/*.ts
+---
+# Elysia Development Guidelines
+
+## Core Principles
+
+- Use English for all code and documentation
+- Leverage end-to-end type safety with Eden Treaty
+- Follow RESTful conventions for API routes
+- Implement modular architecture with Elysia plugins
+
+## Elysia Server Guidelines
+
+### Basic Structure
+
+- Create modular routers using Elysia plugins([1](https://elysiajs.com/patterns/configuration.html))
+- Use prefix for API versioning and grouping
+- Implement proper error handling with onError hooks
+- Configure server settings via Elysia constructor
+
+```typescript
+import { Elysia } from 'elysia'
+
+const app = new Elysia({ prefix: '/api' })
+  .use(userRouter) 
+  .use(postRouter)
+  .onError(({ error, set }) => {
+    set.status = 500
+    return { error: error.message }
+  })
+```
+
+### Route Handlers
+
+- Use descriptive route names in plural form
+- Implement proper request validation using Elysia's type system
+- Return structured responses with proper status codes
+- Document routes with OpenAPI/Swagger annotations
+
+```typescript
+const postRouter = new Elysia({ prefix: '/posts' })
+  .get('', getPosts)
+  .post('', createPost, {
+    body: t.Object({
+      title: t.String(),
+      content: t.String() 
+    })
+  })
+```
+
+## Eden Treaty Guidelines
+
+### Client Setup
+
+- Export server type for end-to-end type safety([2](https://elysiajs.com/eden/treaty/overview.html))
+- Configure Eden Treaty with proper base URL
+- Implement error handling for API responses
+- Use proper TypeScript types for request/response
+
+```typescript
+import { treaty } from '@elysiajs/eden'
+import type { App } from './server'
+
+const api = treaty<App>('http://localhost:3000')
+```
+
+### API Consumption
+
+- Use tree-like syntax for route access([3](https://elysiajs.com/eden/treaty/overview.html))
+- Handle responses with proper error checking
+- Implement proper TypeScript types
+- Use proper HTTP methods
+
+```typescript
+// GET /api/posts
+const { data, error } = await api.posts.get()
+
+// POST /api/posts
+const { data, error } = await api.posts.post({
+  title: 'Hello',
+  content: 'World'
+})
+```
+
+## Essential Patterns
+
+### Configuration
+
+- Use environment variables for configuration
+- Implement proper validation for config values
+- Use TypeScript for type-safe configuration
+- Follow the principle of least privilege
+
+### Error Handling
+
+- Implement proper error types
+- Use proper HTTP status codes
+- Return structured error responses
+- Log errors appropriately
+
+### Testing
+
+- Write unit tests for route handlers
+- Test API endpoints with Eden Treaty
+- Implement proper test fixtures
+- Follow AAA pattern (Arrange-Act-Assert)
+
+```typescript
+import { describe, expect, it } from 'bun:test'
+import { treaty } from '@elysiajs/eden'
+import { app } from './server'
+
+const api = treaty(app)
+
+describe('Posts API', () => {
+  it('should create a post', async () => {
+    const { data, error } = await api.posts.post({
+      title: 'Test',
+      content: 'Content'
+    })
+    
+    expect(error).toBeNull()
+    expect(data.title).toBe('Test')
+  })
+})
+```
+
+## Best Practices
+
+- Use proper TypeScript types everywhere
+- Implement proper validation for all inputs
+- Follow REST conventions for API design
+- Use proper error handling
+- Write comprehensive tests
+- Document your API properly
+- Use proper logging
+- Follow security best practices
+- Implement proper CORS handling
+- Use proper HTTP methods

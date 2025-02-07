@@ -5,20 +5,13 @@ import { db } from '../db'
 
 export const postRouter = new Elysia({ prefix: '/posts' })
   .get('', async () => {
-    console.log('get posts')
-    console.log('recentPost',)
-    try {
-      const [recentPost] = await db
-        .select()
-        .from(posts)
-        .orderBy(desc(posts.createdAt))
-        .limit(1)
+    const [recentPost] = await db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.createdAt))
+      .limit(1)
 
-      return recentPost ?? null
-    } catch (error) {
-      console.error('Error fetching recent post:', error)
-      throw new Error('Failed to fetch recent post')
-    }
+    return recentPost ?? null
   })
   .post('', async ({ body }) => {
     const post = await db
