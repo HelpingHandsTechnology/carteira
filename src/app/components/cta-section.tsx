@@ -19,7 +19,7 @@ export function CTASection({ className }: CTASectionProps) {
           href="/register"
           className="inline-block px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
-          Criar Conta Grátis
+          __Criar Conta Grátis__
         </Link>
       </div>
     </section>

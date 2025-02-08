@@ -27,24 +27,34 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 }
 
 const distributeLogos = (allLogos: Logo[], columnCount: number): Logo[][] => {
-  const shuffled = shuffleArray(allLogos)
-  const columns: Logo[][] = Array.from({ length: columnCount }, () => [])
-  shuffled.forEach((logo, index) => {
-    const columnIndex = index % columnCount
-    if (columns[columnIndex]) {
-      columns[columnIndex].push(logo)
-    }
-  })
+  if (allLogos.length === 0) return Array.from({ length: columnCount }, () => [])
 
-  const maxLength = Math.max(...columns.map((col) => col.length))
-  columns.forEach((col) => {
-    while (col.length < maxLength) {
-      const randomLogo = shuffled[Math.floor(Math.random() * shuffled.length)]
-      if (randomLogo) {
-        col.push(randomLogo)
-      }
+  // Determina quantos logos queremos por coluna (pelo menos 4)
+  const logosPerColumn = Math.max(4, Math.ceil(allLogos.length / columnCount))
+
+  // Cria um array com logos suficientes para todas as colunas
+  let extendedLogos: Logo[] = []
+  while (extendedLogos.length < logosPerColumn * columnCount) {
+    extendedLogos = [...extendedLogos, ...allLogos]
+  }
+
+  // Embaralha todos os logos
+  extendedLogos = shuffleArray(extendedLogos)
+
+  // Cria as colunas
+  const columns: Logo[][] = []
+  for (let i = 0; i < columnCount; i++) {
+    // Pega uma fatia dos logos para esta coluna
+    const columnLogos = extendedLogos.slice(i * logosPerColumn, (i + 1) * logosPerColumn)
+
+    // Garante que temos exatamente logosPerColumn logos
+    while (columnLogos.length < logosPerColumn) {
+      columnLogos.push(allLogos[Math.floor(Math.random() * allLogos.length)]!)
     }
-  })
+
+    // Embaralha novamente para evitar padrões
+    columns.push(shuffleArray(columnLogos))
+  }
 
   return columns
 }
@@ -52,8 +62,9 @@ const distributeLogos = (allLogos: Logo[], columnCount: number): Logo[][] => {
 const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, currentTime }) => {
   const cycleInterval = 2000
   const columnDelay = index * 200
-  const adjustedTime = (currentTime + columnDelay) % (cycleInterval * logos.length)
-  const currentIndex = Math.floor(adjustedTime / cycleInterval)
+  const totalDuration = cycleInterval * logos.length
+  const adjustedTime = (currentTime + columnDelay) % totalDuration
+  const currentIndex = Math.floor(adjustedTime / cycleInterval) % logos.length
   const CurrentLogo = useMemo(() => logos[currentIndex]?.img, [logos, currentIndex])
 
   return (
@@ -69,7 +80,7 @@ const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, curren
     >
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${logos?.[currentIndex]?.id}-${currentIndex}`}
+          key={`${logos[currentIndex]?.id}-${currentIndex}`}
           className="absolute inset-0 flex items-center justify-center"
           initial={{ y: "10%", opacity: 0 }}
           animate={{
@@ -96,7 +107,7 @@ const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, curren
             },
           }}
         >
-          {CurrentLogo && <CurrentLogo className=" py-2" />}
+          {CurrentLogo && <CurrentLogo className="md:w-24 md:h-24 py-2" />}
         </motion.div>
       </AnimatePresence>
     </motion.div>

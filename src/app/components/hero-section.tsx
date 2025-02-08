@@ -30,13 +30,13 @@ export function HeroSection({ className }: HeroSectionProps) {
             href="/register"
             className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
-            Começar Agora
+            __Começar Agora__
           </Link>
           <Link
             href="/demo"
             className="px-8 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
           >
-            Ver Demo
+            __Ver Demo__
           </Link>
         </div>
       </div>

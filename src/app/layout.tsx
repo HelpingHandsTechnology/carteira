@@ -15,17 +15,17 @@ const navItems = [
     icon: Home,
   },
   {
-    name: "About",
+    name: "__About__",
     url: "/about",
     icon: User,
   },
   {
-    name: "Projects",
+    name: "__Projects__",
     url: "/projects",
     icon: Settings,
   },
   {
-    name: "Resume",
+    name: "__Resume__",
     url: "/resume",
     icon: DollarSign,
   },
@@ -55,22 +55,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ul className="space-y-2">
                   <li>
                     <Link href="/features/sharing" className="text-sm hover:text-white">
-                      Compartilhamento
+                      __Compartilhamento__
                     </Link>
                   </li>
                   <li>
                     <Link href="/features/security" className="text-sm hover:text-white">
-                      Segurança
+                      __Segurança__
                     </Link>
                   </li>
                   <li>
                     <Link href="/features/payments" className="text-sm hover:text-white">
-                      Pagamentos
+                      __Pagamentos__
                     </Link>
                   </li>
                   <li>
                     <Link href="/pricing" className="text-sm hover:text-white">
-                      Planos
+                      __Planos__
                     </Link>
                   </li>
                 </ul>
@@ -80,22 +80,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ul className="space-y-2">
                   <li>
                     <Link href="/help" className="text-sm hover:text-white">
-                      Central de Ajuda
+                      __Central de Ajuda__
                     </Link>
                   </li>
                   <li>
                     <Link href="/contact" className="text-sm hover:text-white">
-                      Contato
+                      __Contato__
                     </Link>
                   </li>
                   <li>
                     <Link href="/faq" className="text-sm hover:text-white">
-                      FAQ
+                      __FAQ__
                     </Link>
                   </li>
                   <li>
                     <Link href="/feedback" className="text-sm hover:text-white">
-                      Feedback
+                      __Feedback__
                     </Link>
                   </li>
                 </ul>
@@ -105,17 +105,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ul className="space-y-2">
                   <li>
                     <Link href="/privacy" className="text-sm hover:text-white">
-                      Privacidade
+                      __Privacidade__
                     </Link>
                   </li>
                   <li>
                     <Link href="/terms" className="text-sm hover:text-white">
-                      Termos
+                      __Termos__
                     </Link>
                   </li>
                   <li>
                     <Link href="/security-policy" className="text-sm hover:text-white">
-                      Política de Segurança
+                      __Política de Segurança__
                     </Link>
                   </li>
                 </ul>
@@ -126,13 +126,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <p className="text-sm">© {new Date().getFullYear()} Carteira. Todos os direitos reservados.</p>
                 <div className="flex items-center gap-6">
                   <Link href="https://twitter.com/carteira" className="text-sm hover:text-white">
-                    Twitter
+                    __Twitter__
                   </Link>
                   <Link href="https://linkedin.com/company/carteira" className="text-sm hover:text-white">
-                    LinkedIn
+                    __LinkedIn__
                   </Link>
                   <Link href="https://github.com/carteira" className="text-sm hover:text-white">
-                    GitHub
+                    __GitHub__
                   </Link>
                 </div>
               </div>
