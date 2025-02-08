@@ -1,18 +1,9 @@
-import { HeroSection } from "./components/hero-section"
-import { PartnersSection } from "./components/partners-section"
-import { FeaturesSection } from "./components/features-section"
-import { CTASection } from "./components/cta-section"
-import "./globals.css"
+"use client"
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col">
-      <HeroSection />
-      <PartnersSection className="py-16" />
-      <FeaturesSection className="py-16" />
-      <CTASection className="py-16" />
-    </main>
-  )
+import { cn } from "@/lib/utils"
+
+interface FeaturesSectionProps {
+  className?: string
 }
 
 const features = [
@@ -59,3 +50,24 @@ const features = [
     description: "Seus dados são protegidos com as mais avançadas tecnologias de criptografia.",
   },
 ]
+
+export function FeaturesSection({ className }: FeaturesSectionProps) {
+  return (
+    <section className={cn(" bg-white", className)}>
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Recursos Principais</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <div key={index} className="p-6 rounded-lg border border-gray-200 hover:border-blue-500 transition-colors">
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-100 text-blue-600 mb-4">
+                {feature.icon}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p className="text-gray-600">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
