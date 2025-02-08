@@ -6,8 +6,33 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { Typewriter } from "@/components/ui/typewriter"
 import { GradientHeading, headingVariants } from "@/components/ui/gradient-headings"
 
+export function PartnersSection({ className }: PartnersSectionProps) {
+  const isMobile = useIsMobile()
+
+  return (
+    <section className={cn(className)}>
+      <div className={cn("max-w-7xl mx-auto px-4 flex flex-col items-center gap-4")}>
+        <div className={cn("flex flex-col items-center text-center")}>
+          <GradientHeading variant="secondary">{CONTENT.title.primary}</GradientHeading>
+          <GradientHeading size="xl">{CONTENT.title.secondary}</GradientHeading>
+          <Typewriter className={cn(headingVariants({ size: "xl" }))} text={CONTENT.typewriter} />
+        </div>
+        <LogoCarousel logos={partners} columnCount={4} />
+      </div>
+    </section>
+  )
+}
+
 interface PartnersSectionProps {
   className?: string
+}
+
+const CONTENT = {
+  title: {
+    primary: "Gerencie suas assinaturas",
+    secondary: "Compartilhe",
+  },
+  typewriter: ["com um amigo", "com um colega do trabalho", "com quem você ama", "com quem você quiser"],
 }
 
 const partners = [
@@ -115,22 +140,3 @@ const partners = [
     ),
   },
 ]
-
-export function PartnersSection({ className }: PartnersSectionProps) {
-  const isMobile = useIsMobile()
-  return (
-    <section className={cn(className)}>
-      <div className={cn("max-w-7xl mx-auto px-4 flex flex-col items-center gap-4")}>
-        <div className={cn("flex flex-col items-center text-center")}>
-          <GradientHeading variant="secondary">Gerencie suas assinaturas</GradientHeading>
-          <GradientHeading size="xl">Compartilhe</GradientHeading>
-          <Typewriter
-            className={cn(headingVariants({ size: "xl" }))}
-            text={["com um amigo", "com um colega do trabalho", "com quem você ama", "com quem você quiser"]}
-          />
-        </div>
-        <LogoCarousel logos={partners} columnCount={4} />
-      </div>
-    </section>
-  )
-}

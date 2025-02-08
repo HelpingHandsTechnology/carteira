@@ -31,20 +31,70 @@ globs: src/app/**/*.tsx
    - Componentes compartilhados entre múltiplas páginas
 
 ## Boas Práticas
+1. Ordem dos Componentes
+   - Componente principal exportado sempre no topo do arquivo
+   - Componentes auxiliares e funções de suporte logo abaixo
+   - Facilita a visualização e entendimento do código
+   - Exemplo:
+     ```tsx
+     // ✅ Correto
+     export function MainComponent() {
+       return <div>{/* ... */}</div>
+     }
+     
+     function HelperComponent() {
+       return <div>{/* ... */}</div>
+     }
 
-1. Nomenclatura
+     // ❌ Incorreto
+     function HelperComponent() {
+       return <div>{/* ... */}</div>
+     }
+     
+     export function MainComponent() {
+       return <div>{/* ... */}</div>
+     }
+     ```
+
+2. Organização de Conteúdo
+   - Extrair conteúdo estático para objetos separados
+   - Usar constantes para textos e configurações
+   - Facilita manutenção e internacionalização
+   - Exemplo:
+     ```tsx
+     const CONTENT = {
+       title: "Título Principal",
+       description: "Descrição detalhada",
+       features: [
+         { id: 1, title: "Feature 1" },
+         { id: 2, title: "Feature 2" }
+       ]
+     }
+
+     export function Component() {
+       return (
+         <div>
+           <h1>{CONTENT.title}</h1>
+           <p>{CONTENT.description}</p>
+         </div>
+       )
+     }
+     ```
+
+3. Nomenclatura
+
    - Usar nomes descritivos para componentes
    - Sufixo `-section` para seções de página
    - Sufixo `-list` para listas
    - Sufixo `-item` para itens de lista
 
-2. Organização de Arquivos
+4. Organização de Arquivos
    - Um componente por arquivo
    - Nome do arquivo igual ao nome do componente
    - Usar kebab-case para nomes de arquivo
    - Agrupar arquivos relacionados em pastas
 
-3. Importações
+5. Importações
    - Importar componentes usando paths absolutos
    - Usar aliases `@/` para imports
    - Manter ordem de imports consistente
