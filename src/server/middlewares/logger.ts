@@ -1,58 +1,76 @@
-import { Logger, LogPayload } from '@/lib/types'
 import { Elysia } from 'elysia'
+import { Signale } from 'signale'
 
-const createLogger = (): Logger => {
-  return {
-    log: (payload: LogPayload) => {
-      console.log(JSON.stringify({
-        ...payload,
-        timestamp: payload.timestamp || new Date().toISOString()
-      }))
+export const logger = new Signale({
+  config: {
+    displayTimestamp: true,
+    displayDate: true
+  },
+  types: {
+    request: {
+      badge: '→',
+      color: 'blue',
+      label: 'request'
+    },
+    response: {
+      badge: '←',
+      color: 'green',
+      label: 'response'
     }
   }
-}
+})
 
 type LoggerState = {
-  logger: Logger
   startTime: number
 }
 
-export const logger = new Elysia({ name: 'logger' })
+export const loggerMiddleware = new Elysia({ name: 'logger' })
   .state('loggerState', {
-    logger: createLogger(),
     startTime: 0
   })
-  .onRequest(({ request, store }) => {
-    const state = store.loggerState as LoggerState
-    state.startTime = performance.now()
-    state.logger.log({
-      level: 'info',
-      message: `Incoming ${request.method} request`,
-      path: new URL(request.url).pathname,
-      method: request.method,
-      timestamp: new Date().toISOString()
+  .onError(({ error, request }) => {
+    logger.error({
+      prefix: request.method,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      suffix: new URL(request.url).pathname
     })
   })
   .onAfterHandle(({ request, store }) => {
     const state = store.loggerState as LoggerState
     const duration = performance.now() - state.startTime
-    state.logger.log({
-      level: 'info',
-      message: `Completed ${request.method} request`,
-      path: new URL(request.url).pathname,
-      method: request.method,
-      duration,
-      timestamp: new Date().toISOString()
+
+    logger.request({
+      prefix: request.method,
+      message: new URL(request.url).pathname,
+      suffix: `${duration.toFixed(2)}ms`
     })
   })
-  .onError(({ error, request, store }) => {
+  .onRequest(async ({ request, store }) => {
     const state = store.loggerState as LoggerState
-    state.logger.log({
-      level: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      error,
-      path: new URL(request.url).pathname,
-      method: request.method,
-      timestamp: new Date().toISOString()
+    state.startTime = performance.now()
+
+    const url = new URL(request.url)
+    const params = Object.fromEntries(url.searchParams)
+    let body = {}
+
+    if (request.method !== 'GET') {
+      try {
+        body = await request.json()
+      } catch {
+        // Ignore if body cannot be parsed
+      }
+    }
+
+    const details = {
+      ...(Object.keys(params).length > 0 && { params }),
+      ...(Object.keys(body).length > 0 && { body })
+    }
+
+    logger.request({
+      prefix: request.method,
+      message: url.pathname,
+      suffix: [
+        Object.keys(details).length > 0 ? JSON.stringify(details) : null,
+      ].filter(Boolean).map(s => `[${s}]`).join(' ')
     })
-  }) 
+  })
