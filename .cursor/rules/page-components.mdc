@@ -1,0 +1,94 @@
+---
+description: Diretrizes para organização de páginas e componentes
+globs: src/app/**/*.tsx
+---
+# Diretrizes para Organização de Páginas e Componentes
+
+## Estrutura de Páginas
+
+1. Páginas como Roteadores
+   - Páginas devem atuar apenas como roteadores de componentes
+   - Evitar lógica de negócio nas páginas
+   - Manter páginas simples e focadas em composição
+   - Usar componentes para toda a lógica e apresentação
+
+2. Localização dos Componentes
+   - Componentes específicos de página devem ficar ao lado do arquivo da página
+   - Criar pasta `components` ao lado do arquivo da página
+   - Exemplo:
+     ```
+     src/app/
+     ├── page.tsx
+     ├── components/
+     │   ├── hero-section.tsx
+     │   ├── features-section.tsx
+     │   └── cta-section.tsx
+     ```
+
+3. Exceções
+   - Componentes reutilizáveis devem ficar em `src/components/ui`
+   - Componentes de UI genéricos (botões, inputs, etc)
+   - Componentes compartilhados entre múltiplas páginas
+
+## Boas Práticas
+
+1. Nomenclatura
+   - Usar nomes descritivos para componentes
+   - Sufixo `-section` para seções de página
+   - Sufixo `-list` para listas
+   - Sufixo `-item` para itens de lista
+
+2. Organização de Arquivos
+   - Um componente por arquivo
+   - Nome do arquivo igual ao nome do componente
+   - Usar kebab-case para nomes de arquivo
+   - Agrupar arquivos relacionados em pastas
+
+3. Importações
+   - Importar componentes usando paths absolutos
+   - Usar aliases `@/` para imports
+   - Manter ordem de imports consistente
+
+## Exemplos
+
+### Estrutura Correta
+```tsx
+// src/app/page.tsx
+import { HeroSection } from "./components/hero-section"
+import { FeaturesSection } from "./components/features-section"
+
+export default function Page() {
+  return (
+    <main>
+      <HeroSection />
+      <FeaturesSection />
+    </main>
+  )
+}
+```
+
+### Estrutura Incorreta
+```tsx
+// src/app/page.tsx - Não fazer isso
+export default function Page() {
+  // Lógica complexa aqui
+  const features = []
+  
+  return (
+    <main>
+      {/* Componentes inline */}
+      <section>...</section>
+      <section>...</section>
+    </main>
+  )
+}
+```
+
+## Checklist
+
+- [ ] Página atua apenas como roteador?
+- [ ] Componentes específicos estão ao lado da página?
+- [ ] Componentes reutilizáveis estão em `src/components/ui`?
+- [ ] Nomes são descritivos e seguem convenções?
+- [ ] Imports usam paths absolutos?
+- [ ] Um componente por arquivo? 
