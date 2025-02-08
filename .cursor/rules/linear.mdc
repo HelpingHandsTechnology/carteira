@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+---
+
+# For the linear mcp usage
+
+- Whenever you create a new issue you should use the follow teams 
+{
+"id": "016af7a4-71a7-4738-933f6ba413ed0c11",
+"name" : "Antoniel",
+"key" : "TONY"
+}

@@ -6,7 +6,6 @@ import { postRouter } from './routers/post-router'
  * Here, you can handle errors, not-found responses, cors and more.
  */
 export const app = new Elysia({ prefix: '/api' })
-  .use(postRouter)
   .onError(({ error, set }) => {
     if (error instanceof Error) {
       console.error(`[ERROR] ${error.message}`)
@@ -17,6 +16,7 @@ export const app = new Elysia({ prefix: '/api' })
     set.status = 500
     return { error: { message: 'Internal Server Error' } }
   })
+  .use(postRouter)
 
 export type AppType = typeof app
 export default app

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@elysiajs/eden": "^1.2.0",
+    "@elysiajs/opentelemetry": "^1.2.0",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
@@ -52,6 +53,7 @@
     "input-otp": "^1.4.2",
     "next": "^15.1.6",
     "next-themes": "^0.4.4",
+    "pg": "^8.13.1",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
