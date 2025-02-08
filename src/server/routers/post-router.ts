@@ -1,10 +1,11 @@
 import { Elysia, t } from 'elysia'
 import { posts } from "@/server/db/schema"
 import { desc } from "drizzle-orm"
-import { db } from '../db'
+import { DbService } from '@/server/services/db'
 
 export const postRouter = new Elysia({ prefix: '/posts' })
-  .get('', async () => {
+  .decorate('db', DbService.db)
+  .get('', async ({ db }) => {
     const [recentPost] = await db
       .select()
       .from(posts)
@@ -13,7 +14,7 @@ export const postRouter = new Elysia({ prefix: '/posts' })
 
     return recentPost ?? null
   })
-  .post('', async ({ body }) => {
+  .post('', async ({ body, db }) => {
     const post = await db
       .insert(posts)
       .values({ name: body.name })
