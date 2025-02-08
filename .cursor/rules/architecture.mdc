@@ -1,0 +1,143 @@
+---
+description: Guidelines for maintaining ARCHITECTURE.md up to date
+globs: 
+---
+# Architecture Documentation Guidelines
+
+## When to Update
+
+The ARCHITECTURE.md file must be updated when:
+
+1. New Technologies/Dependencies
+   - Adding new libraries or frameworks
+   - Upgrading major versions of existing dependencies
+   - Changing core technologies
+
+2. Structural Changes
+   - Creating new directories or modules
+   - Changing the project structure
+   - Adding new service layers
+   - Implementing new design patterns
+
+3. API Changes
+   - Adding new API endpoints
+   - Changing response formats
+   - Implementing new validation patterns
+   - Adding new middleware
+
+4. Database Changes
+   - Adding new schemas
+   - Changing database structure
+   - Implementing new database patterns
+   - Adding new ORM features
+
+5. Security Updates
+   - Adding new security measures
+   - Implementing authentication/authorization
+   - Adding rate limiting
+   - Changing security configurations
+
+6. Infrastructure Changes
+   - Changing deployment strategy
+   - Adding new services
+   - Modifying server configurations
+   - Implementing new monitoring tools
+
+## How to Update
+
+1. Document First
+   - Write documentation before implementing changes
+   - Use documentation as a design tool
+   - Get feedback on documentation changes
+
+2. Keep it Synchronized
+   - Update documentation in the same PR as code changes
+   - Review documentation changes alongside code
+   - Ensure all team members understand changes
+
+3. Be Specific
+   - Include code examples when relevant
+   - Document rationale for changes
+   - Explain impact on existing features
+
+4. Structure
+   - Maintain consistent formatting
+   - Use proper markdown syntax
+   - Keep sections organized
+   - Update table of contents if needed
+
+## Sections to Review
+
+When making changes, review these sections:
+
+1. Stack Tecnológica
+   - Update technology list
+   - Add new features/capabilities
+   - Remove deprecated items
+
+2. Estrutura do Projeto
+   - Keep directory structure current
+   - Update component descriptions
+   - Document new modules
+
+3. Padrões de API
+   - Document new endpoints
+   - Update validation rules
+   - Keep response formats current
+
+4. Fluxo de Dados
+   - Update data flow diagrams
+   - Document new integrations
+   - Keep process descriptions current
+
+5. Decisões Arquiteturais
+   - Document new decisions
+   - Update rationales
+   - Keep trade-offs documented
+
+6. Segurança
+   - Update security measures
+   - Document new protections
+   - Keep best practices current
+
+7. Próximos Passos
+   - Update roadmap
+   - Add new planned features
+   - Remove completed items
+
+## Best Practices
+
+1. Version Control
+   - Commit documentation changes with meaningful messages
+   - Review documentation in PRs
+   - Keep history of major changes
+
+2. Clarity
+   - Use clear, concise language
+   - Include examples when helpful
+   - Explain complex concepts
+
+3. Consistency
+   - Use consistent terminology
+   - Follow established patterns
+   - Maintain formatting standards
+
+4. Completeness
+   - Cover all major features
+   - Document edge cases
+   - Include error scenarios
+
+## Review Checklist
+
+Before committing changes, verify:
+
+- [ ] All affected sections are updated
+- [ ] Code examples are current
+- [ ] Links are working
+- [ ] Formatting is consistent
+- [ ] No outdated information
+- [ ] All new features documented
+- [ ] Security implications covered
+- [ ] Performance considerations noted
+- [ ] Dependencies updated
+- [ ] Breaking changes highlighted 

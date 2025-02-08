@@ -46,14 +46,40 @@ const app = new Elysia({ prefix: '/api' })
 - Return structured responses with proper status codes
 - Document routes with OpenAPI/Swagger annotations
 
+### Model Pattern
+
+- Create a Model class for each resource to handle validation and types
+- Use static properties for schema definitions
+- Reuse validation schemas across routes
+- Keep validation logic centralized
+
 ```typescript
-const postRouter = new Elysia({ prefix: '/posts' })
-  .get('', getPosts)
-  .post('', createPost, {
-    body: t.Object({
-      title: t.String(),
-      content: t.String() 
-    })
+export class PostModel {
+  static id = t.Object({
+    id: t.String()
+  })
+
+  static create = t.Object({
+    name: t.String({ minLength: 1 })
+  })
+
+  static update = {
+    params: this.id,
+    body: this.create
+  }
+
+  static delete = {
+    params: this.id
+  }
+}
+
+export const postRouter = new Elysia({ prefix: '/posts' })
+  .decorate('postService', new PostService(DbService.db))
+  .post('', async ({ body, postService }) => {
+    const post = await postService.create(body)
+    return post
+  }, {
+    body: PostModel.create
   })
 ```
 

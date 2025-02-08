@@ -10,3 +10,6 @@ const pool = new Pool({
 export const _db = drizzle(pool, { schema });
 
 export * from './schema';
+
+export type DbType = typeof _db
+export type Schema = typeof schema
