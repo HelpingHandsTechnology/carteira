@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <HeroSection />
-      <PartnersSection className="py-16" />
+      <PartnersSection className="pt-16" />
       <FeaturesSection className="py-16" />
       <CTASection className="py-16" />
     </main>

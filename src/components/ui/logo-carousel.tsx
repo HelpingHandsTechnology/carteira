@@ -71,7 +71,7 @@ const LogoColumn: React.FC<LogoColumnProps> = React.memo(({ logos, index, curren
         <motion.div
           key={`${logos?.[currentIndex]?.id}-${currentIndex}`}
           className="absolute inset-0 flex items-center justify-center"
-          initial={{ y: "10%", opacity: 0, filter: "blur(8px)" }}
+          initial={{ y: "10%", opacity: 0 }}
           animate={{
             y: "0%",
             opacity: 1,
@@ -134,5 +134,3 @@ export function LogoCarousel({ columnCount = 2, logos }: LogoCarouselProps) {
     </div>
   )
 }
-
-export { LogoColumn }
