@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const headingVariants = cva("tracking-tight pb-3 bg-clip-text text-transparent", {
+export const headingVariants = cva("tracking-tight pb-3 bg-clip-text text-transparent", {
   variants: {
     variant: {
       default: "bg-gradient-to-t from-neutral-700 to-neutral-800 dark:from-stone-200 dark:to-neutral-200",
@@ -46,7 +46,7 @@ export interface HeadingProps extends VariantProps<typeof headingVariants> {
   className?: string
 }
 
-const GradientHeading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
+export const GradientHeading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ asChild, variant, weight, size, className, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "h3" // default to 'h3' if not a child
     return (
@@ -63,5 +63,3 @@ GradientHeading.displayName = "GradientHeading"
 export type Variant = "default" | "pink" | "light" | "secondary"
 export type Size = "default" | "xxs" | "xs" | "sm" | "md" | "lg" | "xl" | "xxl" | "xxxl"
 export type Weight = "default" | "thin" | "base" | "semi" | "bold" | "black"
-
-export { GradientHeading, headingVariants }

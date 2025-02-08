@@ -1,9 +1,10 @@
 "use client"
 
 import { LogoCarousel } from "@/components/ui/logo-carousel"
-import { GradientHeading } from "@/components/ui/gradient-headings"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { Typewriter } from "@/components/ui/typewriter"
+import { GradientHeading, headingVariants } from "@/components/ui/gradient-headings"
 
 interface PartnersSectionProps {
   className?: string
@@ -118,13 +119,17 @@ const partners = [
 export function PartnersSection({ className }: PartnersSectionProps) {
   const isMobile = useIsMobile()
   return (
-    <section className={cn("bg-white ", className)}>
+    <section className={cn(className)}>
       <div className={cn("max-w-7xl mx-auto px-4 flex flex-col items-center gap-4")}>
         <div className={cn("flex flex-col items-center text-center")}>
           <GradientHeading variant="secondary">Gerencie suas assinaturas</GradientHeading>
-          <GradientHeading size="xl">Compartilhe com quem você ama</GradientHeading>
+          <GradientHeading size="xl">Compartilhe</GradientHeading>
+          <Typewriter
+            className={cn(headingVariants({ size: "xl" }))}
+            text={["com um amigo", "com um colega do trabalho", "com quem você ama", "com quem você quiser"]}
+          />
         </div>
-        <LogoCarousel logos={partners} columnCount={isMobile ? 3 : 4} />
+        <LogoCarousel logos={partners} columnCount={4} />
       </div>
     </section>
   )

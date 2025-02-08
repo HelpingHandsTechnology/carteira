@@ -1,0 +1,132 @@
+---
+description: Diretrizes para uso do Tailwind CSS e Tipografia
+globs: src/**/*.tsx
+---
+# Diretrizes de Estilização com Tailwind CSS
+
+## Uso do `cn()` Helper
+
+1. Organização de Classes
+   - Agrupar classes por categoria semântica
+   - Usar arrays para melhor legibilidade
+   - Separar condicionais em grupos lógicos
+
+```tsx
+// ✅ Correto
+className={cn(
+  "flex flex-col items-center",
+  "px-4 py-6 gap-4",
+  "md:flex-row md:gap-6",
+  "hover:bg-primary/90",
+  isActive && "bg-primary text-white"
+)}
+
+// ❌ Incorreto
+className={cn("flex flex-col items-center px-4 py-6 gap-4 md:flex-row md:gap-6 hover:bg-primary/90")}
+```
+
+2. Ordem de Propriedades
+   - Layout (display, position, etc)
+   - Box Model (margin, padding, width, height)
+   - Visual (background, border, etc)
+   - Tipografia
+   - Interatividade
+   - Responsividade
+   - Estados (hover, focus, etc)
+
+## Componentes de Tipografia
+
+1. Uso Obrigatório
+   - Utilizar componentes do `@/components/ui/typography.tsx`
+   - Evitar estilização direta de elementos HTML de texto
+
+```tsx
+// ✅ Correto
+import { TypographyH1, TypographyP } from "@/components/ui/typography"
+
+<TypographyH1>Título Principal</TypographyH1>
+<TypographyP>Conteúdo do parágrafo</TypographyP>
+
+// ❌ Incorreto
+<h1 className="text-4xl font-bold">Título Principal</h1>
+<p className="text-base">Conteúdo do parágrafo</p>
+```
+
+2. Hierarquia de Títulos
+   - H1: Título principal da página
+   - H2: Seções principais
+   - H3: Subseções
+   - H4: Títulos de componentes menores
+
+## Variantes e Modificadores
+
+1. Uso de Variantes
+   - Criar variantes para padrões recorrentes
+   - Usar o `cn()` para combinar variantes
+   - Documentar variantes em comentários
+
+```tsx
+const variants = {
+  primary: "bg-primary text-white",
+  secondary: "bg-secondary text-gray-900",
+}
+
+className={cn(
+  "px-4 py-2 rounded",
+  variants[variant]
+)}
+```
+
+2. Props Condicionais
+   - Usar props para controlar variantes
+   - Manter lógica de estilo consistente
+   - Documentar props de estilo
+
+## Responsividade
+
+1. Breakpoints
+   - Mobile-first por padrão
+   - Usar prefixos de forma consistente
+   - Agrupar media queries juntas
+
+```tsx
+className={cn(
+  "flex flex-col gap-4",
+  "md:flex-row md:gap-6",
+  "lg:gap-8 lg:px-8"
+)}
+```
+
+## Checklist de Implementação
+
+- [ ] Classes agrupadas por categoria semântica?
+- [ ] Usando componentes de tipografia apropriados?
+- [ ] Ordem de propriedades seguindo o padrão?
+- [ ] Responsividade implementada mobile-first?
+- [ ] Variantes documentadas e consistentes?
+- [ ] `cn()` utilizado para todas as classes dinâmicas?
+
+## Exemplos de Refatoração
+
+### Antes
+```tsx
+<div className="flex flex-col p-4 hover:bg-gray-100 md:flex-row">
+  <h2 className="text-2xl font-bold mb-4">Título</h2>
+  <p className="text-gray-600">Conteúdo</p>
+</div>
+```
+
+### Depois
+```tsx
+<div
+  className={cn(
+    "flex flex-col",
+    "p-4",
+    "hover:bg-gray-100",
+    "md:flex-row"
+  )}
+>
+  <TypographyH2>Título</TypographyH2>
+  <TypographyP>Conteúdo</TypographyP>
+</div>
+``` 
