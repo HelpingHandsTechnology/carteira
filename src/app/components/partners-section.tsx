@@ -32,7 +32,7 @@ const CONTENT = {
     primary: "Gerencie suas assinaturas",
     secondary: "Compartilhe",
   },
-  typewriter: ["com um amigo", "com um colega do trabalho", "com quem você ama", "com quem você quiser"],
+  typewriter: ["com um amigo", "com um colega do trabalho", "com quem você ama", "com quem você quiser!"],
 }
 
 const partners = [

@@ -1,6 +1,8 @@
-import { Check } from "lucide-react"
+import { Shield, Calculator, DollarSign, LayoutDashboard, Bell, Smartphone } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { TypographyH2, TypographyP, TypographyLead, TypographyH3 } from "@/components/ui/typography"
+import { title } from "process"
 
 export function ValueProposition() {
   return (
@@ -11,15 +13,17 @@ export function ValueProposition() {
             <Badge>{CONTENT.badge}</Badge>
           </div>
           <div className="flex gap-2 flex-col">
-            <h2 className="text-3xl md:text-5xl tracking-tighter lg:max-w-xl font-regular">{CONTENT.title}</h2>
-            <p className="text-lg max-w-xl lg:max-w-xl leading-relaxed tracking-tight text-muted-foreground">
+            <TypographyH2 className="text-3xl md:text-5xl tracking-tighter lg:max-w-xl font-regular">
+              {CONTENT.title}
+            </TypographyH2>
+            <TypographyLead className="max-w-xl lg:max-w-xl leading-relaxed tracking-tight text-muted-foreground">
               {CONTENT.description}
-            </p>
+            </TypographyLead>
           </div>
           <div className="flex gap-10 pt-12 flex-col w-full">
-            <div className="grid grid-cols-2 items-start lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
               {CONTENT.features.map((feature) => (
-                <FeatureItem key={feature.id} title={feature.title} description={feature.description} />
+                <FeatureItem key={feature.id} {...feature} />
               ))}
             </div>
           </div>
@@ -29,52 +33,58 @@ export function ValueProposition() {
   )
 }
 
-function FeatureItem({ title, description }: { title: string; description: string }) {
+function FeatureItem({ title, description, icon: Icon }: { title: string; description: string; icon: any }) {
   return (
-    <div className="flex flex-row gap-6 w-full items-start">
-      <Check className="w-4 h-4 mt-2 text-primary" />
+    <div className="flex flex-row gap-4 md:gap-6 w-full items-start">
+      <Icon className="w-5 h-5 mt-1 text-primary shrink-0" />
       <div className="flex flex-col gap-1">
-        <p>{title}</p>
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <TypographyH3>{title}</TypographyH3>
+        <TypographyP className="text-muted-foreground text-sm">{description}</TypographyP>
       </div>
     </div>
   )
 }
 
 const CONTENT = {
-  badge: "Platform",
-  title: "Something new!",
-  description: "Managing a small business today is already tough.",
+  badge: "Plataforma",
+  title: "Compartilhe, Economize e Lucre com Suas Assinaturas",
+  description: "Gerencie serviços como Netflix e Spotify em um só lugar, com segurança e praticidade.",
   features: [
     {
       id: 1,
-      title: "Easy to use",
-      description: "We've made it easy to use and understand.",
+      icon: Shield,
+      title: "Segurança Blindada",
+      description: "Senhas armazenadas com criptografia via Bitwarden. Seus dados nunca ficam expostos.",
     },
     {
       id: 2,
-      title: "Fast and reliable",
-      description: "We've made it fast and reliable.",
+      icon: Calculator,
+      title: "Divisão Automatizada de Custos",
+      description: "O app calcula quanto cada um deve pagar, simplificando o rateio entre amigos ou familiares.",
     },
     {
       id: 3,
-      title: "Beautiful and modern",
-      description: "We've made it beautiful and modern.",
+      icon: DollarSign,
+      title: "Monetização Simplificada",
+      description: "Revenda acessos a terceiros e transforme suas assinaturas em renda extra.",
     },
     {
       id: 4,
-      title: "Easy to use",
-      description: "We've made it easy to use and understand.",
+      icon: LayoutDashboard,
+      title: "Controle Total",
+      description: "Dashboard intuitivo para ver sua economia, prazos de renovação e histórico de transações.",
     },
     {
       id: 5,
-      title: "Fast and reliable",
-      description: "We've made it fast and reliable.",
+      icon: Bell,
+      title: "Notificações Inteligentes",
+      description: "Alertas para pagamentos, trocas de senha e renovações. Nada passa despercebido.",
     },
     {
       id: 6,
-      title: "Beautiful and modern",
-      description: "We've made it beautiful and modern.",
+      icon: Smartphone,
+      title: "Interface Moderna",
+      description: "Design intuitivo para gerenciar tudo em poucos cliques, sem complicação.",
     },
   ],
 }

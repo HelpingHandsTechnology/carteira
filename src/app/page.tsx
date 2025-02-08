@@ -4,6 +4,7 @@ import { CTASection } from "./components/cta-section"
 import "./globals.css"
 import { AuroraBackground } from "@/app/components/aurora-background"
 import { ValueProposition } from "@/app/components/value-proposition"
+import { Pricing } from "@/app/components/pricing-cards"
 
 export default function Home() {
   return (
@@ -12,7 +13,7 @@ export default function Home() {
         <PartnersSection className="" />
       </AuroraBackground>
       <ValueProposition />
-      <FeaturesSection className="" />
+      <Pricing />
       <CTASection className="py-16" />
     </main>
   )

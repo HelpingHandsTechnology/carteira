@@ -74,9 +74,9 @@ const Typewriter = ({
           }, deleteSpeed)
         }
       } else {
-        if (currentIndex < currentText.length) {
+        if (currentIndex < (currentText?.length ?? 0)) {
           timeout = setTimeout(() => {
-            setDisplayText((prev) => prev + currentText[currentIndex])
+            setDisplayText((prev) => prev + (currentText?.[currentIndex] ?? 0))
             setCurrentIndex((prev) => prev + 1)
           }, speed)
         } else if (texts.length > 1) {
@@ -105,7 +105,7 @@ const Typewriter = ({
           variants={cursorAnimationVariants}
           className={cn(
             cursorClassName,
-            hideCursorOnType && (currentIndex < texts[currentTextIndex]?.length || isDeleting) ? "hidden" : ""
+            hideCursorOnType && (currentIndex < (texts[currentTextIndex]?.length ?? 0) || isDeleting) ? "hidden" : ""
           )}
           initial="initial"
           animate="animate"
