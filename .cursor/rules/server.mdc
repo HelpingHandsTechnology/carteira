@@ -4,6 +4,13 @@ globs: src/server/**/*.ts
 ---
 # Elysia Development Guidelines
 
+
+## Dependency injection
+
+- For routes the services should come via `decorate` instead to be used directly in the body of the function
+- Same for the database
+
+
 ## Core Principles
 
 - Use English for all code and documentation
@@ -15,7 +22,7 @@ globs: src/server/**/*.ts
 
 ### Basic Structure
 
-- Create modular routers using Elysia plugins([1](https://elysiajs.com/patterns/configuration.html))
+- Create modular routers using Elysia plugins
 - Use prefix for API versioning and grouping
 - Implement proper error handling with onError hooks
 - Configure server settings via Elysia constructor
@@ -54,7 +61,7 @@ const postRouter = new Elysia({ prefix: '/posts' })
 
 ### Client Setup
 
-- Export server type for end-to-end type safety([2](https://elysiajs.com/eden/treaty/overview.html))
+- Export server type for end-to-end type safety([2](mdc:https:/elysiajs.com/eden/treaty/overview.html))
 - Configure Eden Treaty with proper base URL
 - Implement error handling for API responses
 - Use proper TypeScript types for request/response
@@ -68,7 +75,7 @@ const api = treaty<App>('http://localhost:3000')
 
 ### API Consumption
 
-- Use tree-like syntax for route access([3](https://elysiajs.com/eden/treaty/overview.html))
+- Use tree-like syntax for route access([3](mdc:https:/elysiajs.com/eden/treaty/overview.html))
 - Handle responses with proper error checking
 - Implement proper TypeScript types
 - Use proper HTTP methods
