@@ -1,0 +1,48 @@
+- # User Personas
+	- Persona 1: João Silva – O Universitário Econômico
+		- •	Idade: 18 a 25 anos
+		- •	Ocupação: Estudante universitário
+		- •	Contexto:
+			- João sempre sonhou em ter acesso a diversos serviços de streaming, mas os altos custos mensais sempre foram um impeditivo. Ele procura maneiras de ter acesso aos conteúdos que gosta sem pesar no orçamento.
+		- •	Objetivos:
+			- •	Pagar menos pelas assinaturas, dividindo os custos com amigos.
+			- •	Ter acesso facilitado e seguro às senhas das plataformas.
+			- •	Receber notificações quando estiver na hora de renovar o acesso.
+		- •	Frustrações:
+			- •	Não conseguir pagar assinaturas caras sozinho.
+			- •	Perder o acesso por falta de organização ou por esquecer de renovar a assinatura.
+		- •	Comportamento:
+			- •	Utiliza o app algumas vezes na semana, principalmente quando precisa acessar uma plataforma (por exemplo, copiar a senha para entrar na Netflix).
+			- •	Valoriza soluções tecnológicas que sejam simples e seguras.
+	- Persona 2: Maria Oliveira – A Empreendedora do Compartilhamento
+		- •	Idade: 18 a 25 anos
+		- •	Ocupação: Estudante universitária com perfil empreendedor
+		- •	Contexto:
+			- Maria não só utiliza os serviços de streaming, mas também vê uma oportunidade de transformar o compartilhamento de assinaturas em uma forma de ganhar dinheiro. Ela tem assinaturas que permitem múltiplos acessos e deseja gerenciar a revenda desses acessos de forma organizada.
+		- •	Objetivos:
+			- •	Lucrar com suas assinaturas, revendendo o acesso para colegas e amigos.
+			- •	Ter uma plataforma que facilite a gestão dos pagamentos e renovações automaticamente.
+		- •	Frustrações:
+			- •	A dificuldade de gerenciar e monitorar quem está utilizando seu acesso.
+			- •	A falta de ferramentas que integrem a revenda de assinaturas com segurança e transparência.
+		- •	Comportamento:
+			- •	Procura soluções tecnológicas que automatizem a divisão de custos e a cobrança.
+			- •	Valoriza a segurança (confia em integrações como a do Bitwarden) e a transparência nas transações.
+- # User Stories
+	- Para o Usuário que busca economia (João)
+		- 1.	Acesso às Assinaturas Disponíveis:
+		- Como um estudante universitário, quero acessar uma lista de assinaturas disponíveis no app para verificar quais serviços posso utilizar, de forma que eu possa escolher a melhor opção para o momento.
+		- 2.	Cópia Rápida da Senha:
+		- Como usuário, quando eu preciso acessar a Netflix (ou outro serviço), quero entrar na aplicação, copiar a senha e colar no site ou app do serviço para ter acesso rápido e sem complicações.
+		- 3.	Notificação de Vencimento:
+		- Como membro de um grupo de compartilhamento, quero ser notificado quando uma assinatura estiver próxima do vencimento, para que eu possa realizar o pagamento e garantir que o acesso não seja interrompido.
+		- 4.	Histórico de Pagamentos e Acessos:
+		- Como usuário, quero visualizar um histórico de pagamentos e acessos realizados, para acompanhar quanto já paguei e quando cada assinatura foi renovada.
+	- Para o Usuário que deseja lucrar com suas assinaturas (Maria)
+		- 1.	Gestão de Revenda de Acessos:
+		- Como usuária que deseja lucrar com suas assinaturas, quero ter uma funcionalidade que me permita oferecer e gerenciar a revenda de acessos, definindo valores e prazos, para que eu possa recuperar ou até lucrar com os custos da assinatura.
+		- 2.	Divisão Automatizada dos Custos:
+		- Como administradora de um grupo, quero que o app calcule automaticamente quanto cada membro deve pagar, considerando o valor total da assinatura e o número de usuários, para garantir que todos paguem de forma justa e organizada.
+		- 3.	Notificações de Renovação e Pagamento:
+		- Como usuária empreendedora, quero receber alertas e notificações sobre a necessidade de renovação das assinaturas e confirmações de pagamentos realizados, para manter o controle e evitar falhas no acesso.
+-

@@ -1,0 +1,33 @@
+- ### Perguntas para o Vision Document
+- Problema Central:
+	- Qual problema específico seu aplicativo resolve?
+	- Por que esse problema é relevante para os usuários?
+- Solução Proposta:
+	- Como seu app resolve esse problema de maneira única?
+	- Que valor ele entrega que soluções existentes não oferecem?
+- Público-Alvo:
+	- Quem são os usuários primários? (Ex: idade, profissão, hábitos, localização).
+	- Há um segmento secundário (ex: empresas, parceiros)?
+- Proposta de Valor Única (USP):
+	- Qual é o "superpoder" do seu app em uma frase?
+	- Exemplo: "O primeiro app de [X] que [Y] sem precisar de [Z]."
+- Objetivos Principais:
+	- Curto prazo (6 meses): O que você quer alcançar primeiro?
+	- Longo prazo (3 anos): Qual é o impacto desejado?
+- Concorrência:
+	- Quais apps/soluções já existem para esse problema?
+	- Como seu app é diferente?
+- Indicadores de Sucesso:
+	- Como você medirá o sucesso? (Ex: downloads ativos, receita, retenção de usuários).
+- Princípios do Produto:
+	- Quais valores guiam o desenvolvimento? (Ex: simplicidade, privacidade, velocidade).
+- Riscos e Desafios:
+	- Quais são os maiores obstáculos técnicos, de mercado ou operacionais?
+- Identidade da Marca:
+	- Qual tom de voz você quer transmitir? (Ex: descontraído, profissional, inspirador).
+	- Como quer que os usuários se sintam ao usar o app?
+- Parceiros ou Integrações Chave:
+	- Há alguma parceria crítica para o sucesso do app? (Ex: APIs de pagamento, redes sociais).
+- Jornada do Usuário:
+	- Como os usuários descobrirão o app? (Ex: redes sociais, indicações).
+	- O que os fará continuar usando após o primeiro acesso?

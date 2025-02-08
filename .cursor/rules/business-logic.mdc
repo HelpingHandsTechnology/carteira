@@ -1,0 +1,12 @@
+---
+description: business-logic
+globs: *.ts, *.tsx
+---
+# Documents and artifacts about the project 
+
+Here are a few documents regarding the project 
+
+- Producment requirements Documents [prd.md](mdc:docs/prd.md)
+- Personas and user storeis: [personas.md](mdc:docs/personas.md)
+- Vision document: [vision document.md](mdc:docs/vision document.md)
+- Business model [business-model.md](mdc:docs/business-model.md)

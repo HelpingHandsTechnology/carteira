@@ -1,0 +1,71 @@
+- Business Model Canvas
+- Com base nas informações que você forneceu, segue um rascunho do Business Model Canvas para o seu app:
+- 1. Segmentos de Clientes (Customer Segments)
+	- Usuários que buscam economia em assinaturas:
+		- Pessoas que desejam dividir os custos de serviços (como Netflix, Spotify, Apple TV etc.) para pagar menos.
+	- Grupos de amigos/família:
+		- Usuários que já compartilham serviços e precisam de uma ferramenta para gerenciar e dividir as contas de forma organizada.
+	- Usuários que desejam lucrar com suas assinaturas:
+		- Indivíduos que possuem assinaturas sem restrição de número de usuários e querem transformar esse acesso em uma oportunidade de lucro, revendendo o acesso para outras pessoas.
+- 2. Proposta de Valor (Value Propositions)
+	- •	Gerenciamento centralizado e seguro de senhas:
+		- A plataforma reúne e organiza todas as senhas em um único lugar, integrando soluções de segurança (ex.: Bitwarden) para garantir que os dados não fiquem vulneráveis.
+	- •	Divisão automatizada de custos:
+		- O app calcula quanto cada usuário deve pagar, considerando a validade da assinatura e a periodicidade (por exemplo, renovação mensal), facilitando a divisão de custos entre os membros do grupo.
+	- •	Oportunidade de monetização para os donos de assinaturas:
+		- Permite que usuários que não queiram compartilhar o acesso gratuitamente possam lucrar revendendo o acesso a terceiros, garantindo vantagens tanto para quem vende quanto para quem compra.
+	- •	Integração com serviços para renovação de senhas:
+		- Quando o período de acesso expira, o app solicita o pagamento para que o acesso seja renovado, mantendo o controle e a continuidade do serviço.
+- 3. Canais (Channels)
+	- •	Inicialmente – Indicação boca a boca:
+		- O app será divulgado inicialmente por meio de indicações de amigos, grupos de contatos e redes sociais.
+	- •	Canais digitais e redes sociais (futuro):
+		- Posteriormente, pode-se investir em marketing digital, parcerias com influenciadores e campanhas em redes sociais para aumentar o alcance.
+	- •	Comunicação direta via email ou dentro do app:
+		- Para suporte, feedback e anúncio de novas funcionalidades, garantindo uma comunicação próxima com os usuários.
+- 4. Relacionamento com Clientes (Customer Relationships)
+	- •	Feedback contínuo e participação ativa:
+		- Implementação de canais (como formulários, sessões de feedback ou votações dentro do app) para que os usuários possam sugerir melhorias e funcionalidades.
+	- •	Suporte básico inicial e expansão gradual:
+		- No início, o suporte pode ser feito via email ou central de ajuda integrada. Conforme o app crescer, pode-se desenvolver um atendimento mais robusto.
+	- •	Experiência personalizada:
+		- Permitir que os usuários votem em funcionalidades e personalizem parte da experiência de uso, aumentando o engajamento e a fidelização.
+- 5. Fluxos de Receita (Revenue Streams)
+	- Modelo gratuito (MVP):
+		- Inicialmente, o app será gratuito, visando a popularização e a aquisição de uma base sólida de usuários.
+	- Taxa sobre transações (futuro):
+		- Em versões futuras, pode ser implementada uma cobrança de uma taxa fixa ou percentual sobre cada pagamento realizado para renovação de acesso às senhas.
+	- Assinaturas premium:
+		- Possibilidade de lançar um serviço premium, sem anúncios e com funcionalidades adicionais, para usuários que queiram uma experiência mais completa.
+- 6. Recursos-Chave (Key Resources)
+	- •	Infraestrutura tecnológica e de segurança:
+		- Servidores seguros e integração com soluções como o Bitwarden para o armazenamento das senhas.
+	- •	Mecanismo de gerenciamento de assinaturas:
+		- Ferramentas para monitorar o tempo de validade dos acessos, renovar senhas e calcular a divisão dos custos automaticamente.
+	- •	Sistema de notificações:
+		- Para alertar os usuários sobre vencimentos, renovações e pagamentos pendentes.
+- 7. Atividades-Chave (Key Activities)
+	- •	Desenvolvimento e manutenção do app:
+	- Construção, atualização e correção de bugs da plataforma.
+	- •	Integração com parceiros e serviços externos:
+	- Conectar o app com Bitwarden, plataformas de pagamento (Pix, Splitwise, ou motor próprio) e, futuramente, outras ferramentas que agreguem valor.
+	- •	Gestão e monitoramento da segurança:
+	- Garantir que os dados dos usuários estejam protegidos e que a integração com soluções de segurança esteja sempre atualizada.
+	- •	Coleta e análise de feedback dos usuários:
+	- Para iterar e evoluir o app com base nas necessidades reais do mercado.
+- 8. Parcerias-Chave (Key Partnerships)
+	- •	Bitwarden:
+	- Para o gerenciamento seguro das senhas, evitando o armazenamento inseguro no seu próprio banco de dados.
+	- •	Plataformas de pagamento:
+	- Parcerias com gateways de pagamento (como Pix, Splitwise, ou um motor próprio, se desenvolvido no futuro) para facilitar as transações.
+	- •	Parceiros de marketing:
+	- Em uma fase mais avançada, parcerias para ampliar a divulgação e acelerar o crescimento da base de usuários.
+- 9. Estrutura de Custos (Cost Structure)
+	- •	Infraestrutura e servidores:
+	- Custos com hospedagem, segurança e manutenção dos servidores para garantir a operação contínua e segura do app.
+	- •	Desenvolvimento e manutenção:
+	- Custos relacionados à programação, integrações, atualizações e suporte técnico.
+	- •	Marketing e divulgação (futuro):
+	- Investimentos em campanhas, parcerias e outras estratégias de aquisição de usuários conforme o app for ganhando tração.
+	- •	Suporte e atendimento ao cliente:
+	- Inicialmente, pode ser mínimo, mas conforme a base de usuários cresce, haverá necessidade de expandir essa área.

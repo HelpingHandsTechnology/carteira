@@ -1,0 +1,39 @@
+- 1. Visão Geral do Produto
+	- •	Nome do Produto:
+		- •	Carteira
+	- •	Resumo/Descrição do Produto:
+		- Carteira é uma plataforma inovadora que permite compartilhar de forma segura os acessos a serviços de streaming e assinaturas com as pessoas que você mais ama. Com ela, você divide os custos, economiza no orçamento e mantém um controle organizado sobre o uso e a renovação das assinaturas.
+- 2.	Objetivos e Metas:
+	- •	Facilitar o compartilhamento seguro de senhas e assinaturas.
+	- •	Ajudar usuários a economizar ao dividir os custos dos serviços.
+	- •	Medir o sucesso por meio do número de usuários, solicitações processadas e feedbacks positivos sobre a economia gerada.
+- 3.	Público-Alvo:
+	- •	Estudantes universitários (universitário econômico) e usuários empreendedores que desejam lucrar revendendo acessos.
+- 4.	Funcionalidades e Requisitos Funcionais do MVP:
+	- •	Cadastro e gerenciamento de contas compartilhadas (com controle de expiração).
+	- •	Fluxo de solicitação de acesso e liberação manual pelo admin.
+	- •	Notificações para admin (troca de senha) e para usuário (pagamento e renovação).
+	- •	Integração com Bitwarden para armazenamento seguro das senhas.
+	- •	Dashboard de visualização de economia e histórico de transações.
+- 5.	Requisitos Não Funcionais:
+	- •	Segurança robusta (via Bitwarden).
+	- •	Interface intuitiva e moderna.
+	- •	Performance adequada para acesso frequente pelos usuários.
+- 6.	Fluxos de Usuário e Casos de Uso:
+	- •	Solicitação e liberação de acesso.
+	- •	Monitoramento e notificação de expiração/renovação.
+	- •	Visualização do quanto se está economizando ao compartilhar assinaturas.
+- 7.	Integrações e Dependências:
+	- •	Integração principal com Bitwarden.
+	- •	Dependência de servidores seguros e frameworks para notificações.
+	- •	Integrações futuras com gateways de pagamento para automatização.
+- 8.	Cronograma e Roadmap:
+	- •	MVP: 3–4 meses (desenvolvimento básico e integração com Bitwarden).
+	- •	Iteração pós-MVP: Ajustes e melhorias baseados em feedback.
+	- •	Funcionalidades futuras: Automatização via pagamento, funcionalidades avançadas de revenda.
+- 9.	Riscos e Desafios:
+	- •	Desenvolvimento part-time, segurança e escalabilidade.
+	- •	Mitigação: uso de tecnologias consolidadas, monitoramento contínuo e priorização de funcionalidades essenciais.
+- 10. Feedback e Iteração:
+	- •	Coleta de feedback via canal interno no app e e-mail.
+	- •	Revisões periódicas para atualização e melhoria contínua.
