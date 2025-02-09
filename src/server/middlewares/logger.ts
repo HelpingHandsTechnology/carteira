@@ -1,39 +1,32 @@
-import { Elysia } from 'elysia'
-import { Signale } from 'signale'
+import { Elysia } from "elysia"
+import { Signale } from "signale"
 
 export const logger = new Signale({
   config: {
     displayTimestamp: true,
-    displayDate: true
+    displayDate: true,
   },
   types: {
     request: {
-      badge: '→',
-      color: 'blue',
-      label: 'request'
+      badge: "→",
+      color: "blue",
+      label: "request",
     },
     response: {
-      badge: '←',
-      color: 'green',
-      label: 'response'
-    }
-  }
+      badge: "←",
+      color: "green",
+      label: "response",
+    },
+  },
 })
 
 type LoggerState = {
   startTime: number
 }
 
-export const loggerMiddleware = new Elysia({ name: 'logger' })
-  .state('loggerState', {
-    startTime: 0
-  })
-  .onError(({ error, request }) => {
-    logger.error({
-      prefix: request.method,
-      message: error instanceof Error ? error.message : 'Unknown error',
-      suffix: new URL(request.url).pathname
-    })
+export const loggerMiddleware = new Elysia({ name: "logger" })
+  .state("loggerState", {
+    startTime: 0,
   })
   .onAfterHandle(({ request, store }) => {
     const state = store.loggerState as LoggerState
@@ -42,7 +35,7 @@ export const loggerMiddleware = new Elysia({ name: 'logger' })
     logger.request({
       prefix: request.method,
       message: new URL(request.url).pathname,
-      suffix: `${duration.toFixed(2)}ms`
+      suffix: `${duration.toFixed(2)}ms`,
     })
   })
   .onRequest(async ({ request, store }) => {
@@ -51,26 +44,17 @@ export const loggerMiddleware = new Elysia({ name: 'logger' })
 
     const url = new URL(request.url)
     const params = Object.fromEntries(url.searchParams)
-    let body = {}
-
-    if (request.method !== 'GET') {
-      try {
-        body = await request.json()
-      } catch {
-        // Ignore if body cannot be parsed
-      }
-    }
 
     const details = {
       ...(Object.keys(params).length > 0 && { params }),
-      ...(Object.keys(body).length > 0 && { body })
     }
 
     logger.request({
       prefix: request.method,
       message: url.pathname,
-      suffix: [
-        Object.keys(details).length > 0 ? JSON.stringify(details) : null,
-      ].filter(Boolean).map(s => `[${s}]`).join(' ')
+      suffix: [Object.keys(details).length > 0 ? JSON.stringify(details) : null]
+        .filter(Boolean)
+        .map((s) => `[${s}]`)
+        .join(" "),
     })
   })

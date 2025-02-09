@@ -8,13 +8,13 @@ import { logger, loggerMiddleware } from "./middlewares/logger"
  * Here, you can handle errors, not-found responses, cors and more.
  */
 export const app = new Elysia({ prefix: "/api" })
-  .onError(({ error, set, request }) => {
+  .onError((ctx) => {
     logger.error({
-      message: error instanceof Error ? error.message : "Unknown error",
-      path: new URL(request.url).pathname,
-      stack: error instanceof Error ? error.stack : undefined,
+      message: ctx.error instanceof Error ? ctx.error.message : "Unknown error",
+      path: new URL(ctx.request.url).pathname,
+      stack: ctx.error instanceof Error ? ctx.error.stack : undefined,
     })
-    set.status = 500
+    ctx.set.status = 500
     return { error: { message: "Internal Server Error" } }
   })
   .use(loggerMiddleware)
