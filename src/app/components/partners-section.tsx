@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Typewriter } from "@/components/ui/typewriter"
 import { GradientHeading, headingVariants } from "@/components/ui/gradient-headings"
+import Image from "next/image"
 
 export function PartnersSection({ className }: PartnersSectionProps) {
   const isMobile = useIsMobile()
@@ -40,28 +41,36 @@ const partners = [
     name: "Bitwarden",
     id: 1,
     img: (props: any) => (
-      <img src="/logos/bitwarden.svg" alt="Bitwarden" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/bitwarden.svg"
+        alt="Bitwarden"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
     name: "Netflix",
     id: 2,
     img: (props: any) => (
-      <img src="/logos/netflix.svg" alt="Netflix" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/netflix.svg" alt="Netflix" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
     name: "Spotify",
     id: 3,
     img: (props: any) => (
-      <img src="/logos/spotify.svg" alt="Spotify" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/spotify.svg" alt="Spotify" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
     name: "Apple TV+",
     id: 4,
     img: (props: any) => (
-      <img src="/logos/apple-tv.svg" alt="Apple TV+" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/apple-tv.svg"
+        alt="Apple TV+"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
@@ -79,14 +88,14 @@ const partners = [
     name: "Audible",
     id: 7,
     img: (props: any) => (
-      <img src="/logos/audible.svg" alt="Audible" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/audible.svg" alt="Audible" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
     name: "Coursera",
     id: 8,
     img: (props: any) => (
-      <img src="/logos/coursera.svg" alt="Coursera" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/coursera.svg" alt="Coursera" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
@@ -104,21 +113,25 @@ const partners = [
     name: "HBO",
     id: 10,
     img: (props: any) => (
-      <img src="/logos/hbo.svg" alt="HBO" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/hbo.svg" alt="HBO" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
     name: "Udemy",
     id: 11,
     img: (props: any) => (
-      <img src="/logos/udemy.svg" alt="Udemy" className={cn("h-full w-full object-contain", props.className)} />
+      <Image src="/logos/udemy.svg" alt="Udemy" className={cn("h-full w-full object-contain", props.className)} />
     ),
   },
   {
     name: "Grammarly",
     id: 12,
     img: (props: any) => (
-      <img src="/logos/gramally.svg" alt="Grammarly" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/gramally.svg"
+        alt="Grammarly"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
@@ -136,7 +149,11 @@ const partners = [
     name: "Canva Pro",
     id: 14,
     img: (props: any) => (
-      <img src="/logos/canva-pro.svg" alt="Canva Pro" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/canva-pro.svg"
+        alt="Canva Pro"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
 ]

@@ -6,6 +6,7 @@
     "build": "next build",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "tscheck": "tsc --noEmit",
     "dev": "dotenv -e .env -- next dev",
     "lint": "next lint",
     "start": "next start"
