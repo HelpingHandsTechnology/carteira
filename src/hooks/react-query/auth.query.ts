@@ -2,24 +2,12 @@ import { useMutation, useQueryClient, QueryClient, Updater, useQuery } from "@ta
 import { client } from "@/lib/client"
 import type { User } from "@/server/db/schema"
 
-type AuthResponse = {
-  user: User
-  token: string
-}
-
 export const useUser = () => {
-  const queryClient = useQueryClient()
-
   return useQuery({
     queryKey: ["auth", "user"],
     queryFn: async () => {
-      const { data: response, error } = await client.api.auth.me.get()
-
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      return response
+      const resp = await client.api.auth.me.$get()
+      return await resp.json()
     },
   })
 }
@@ -41,13 +29,11 @@ export const useSignInMutation = () => {
 
   return useMutation({
     mutationFn: async (data: SignInData) => {
-      const { data: response, error } = await client.api.auth.signin.post(data)
+      const resp = await client.api.auth.signin.$post({
+        json: data,
+      })
 
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      return response.data as AuthResponse
+      return resp.json()
     },
   })
 }
@@ -69,13 +55,11 @@ export const useSignUpMutation = () => {
 
   return useMutation({
     mutationFn: async (data: SignUpData) => {
-      const { data: response, error } = await client.api.auth.signup.post(data)
+      const resp = await client.api.auth.signup.$post({
+        json: data,
+      })
 
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      return response.data as AuthResponse
+      return resp.json()
     },
   })
 }
@@ -97,14 +81,8 @@ export const useLogoutMutation = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const { data: response, error } = await client.api.auth.logout.post()
-
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      queryClient.clear()
-      return response
+      const resp = await client.api.auth.signout.$post()
+      return resp.json()
     },
   })
 }

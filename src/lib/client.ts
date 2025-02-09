@@ -1,4 +1,3 @@
-import { edenTreaty } from "@elysiajs/eden"
-import type { AppType } from "@/server"
-
-export const client = edenTreaty<AppType>("http://localhost:3000")
+import { AppType } from "../server/app"
+import { hc } from "hono/client"
+export const client = hc<AppType>("http://localhost:3000")

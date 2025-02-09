@@ -8,9 +8,10 @@ import { loggerMiddleware } from "./middlewares/logger"
 const app = new Hono()
   .basePath("/api")
   .use("*", cors())
-  .use("*", logger())
   .use("*", prettyJSON())
   .use("*", loggerMiddleware)
   .route("/auth", authRouter)
+
+export type AppType = typeof app
 
 export { app }

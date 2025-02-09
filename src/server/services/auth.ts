@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm"
 import { DbService } from "./db"
-import { SelectUser, User } from "../db/schema"
 import { createHash, randomBytes } from "node:crypto"
 import { Result, ResultAsync, err, ok, okAsync, errAsync } from "neverthrow"
 import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "../constants"
+import { User, UserSelect } from "../db"
 
 export type AuthResponse = {
   user: User
@@ -18,7 +18,7 @@ export type AuthError =
   | { type: "DATABASE_ERROR"; message: string }
   | { type: "UNAUTHORIZED"; message: string }
 
-export class AuthService {
+class AuthService {
   constructor(private db: typeof DbService.db) {}
 
   verifyToken(token: string): ResultAsync<{ userId: number }, AuthError> {
@@ -35,7 +35,7 @@ export class AuthService {
     )
   }
 
-  me(userId: number): ResultAsync<User, AuthError> {
+  me(userId: User["id"]): ResultAsync<User, AuthError> {
     return ResultAsync.fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.id, userId),
@@ -95,7 +95,7 @@ export class AuthService {
     return jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" })
   }
 
-  private checkExistingUser(email: string): ResultAsync<SelectUser | undefined, AuthError> {
+  private checkExistingUser(email: string): ResultAsync<UserSelect | undefined, AuthError> {
     return ResultAsync.fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.email, email),
@@ -107,7 +107,7 @@ export class AuthService {
     )
   }
 
-  private validateNewUser(user: SelectUser | undefined): ResultAsync<void, AuthError> {
+  private validateNewUser(user: UserSelect | undefined): ResultAsync<void, AuthError> {
     if (user) {
       return errAsync({
         type: "EMAIL_ALREADY_EXISTS" as const,
@@ -163,7 +163,7 @@ export class AuthService {
     })
   }
 
-  private findUserByEmail(email: string): ResultAsync<SelectUser, AuthError> {
+  private findUserByEmail(email: string): ResultAsync<UserSelect, AuthError> {
     return ResultAsync.fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.email, email),
@@ -183,7 +183,7 @@ export class AuthService {
     })
   }
 
-  private validatePassword(user: SelectUser, password: string): ResultAsync<SelectUser, AuthError> {
+  private validatePassword(user: UserSelect, password: string): ResultAsync<UserSelect, AuthError> {
     return okAsync(this.verifyPassword(user.password, password)).andThen((isValid) => {
       if (!isValid) {
         return errAsync({
@@ -217,7 +217,7 @@ export class AuthService {
     }
   }
 
-  private mapToUser(user: SelectUser): User {
+  private mapToUser(user: UserSelect): User {
     return {
       id: user.id,
       email: user.email,
@@ -225,3 +225,5 @@ export class AuthService {
     }
   }
 }
+
+export const authService = new AuthService(DbService.db)
