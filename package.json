@@ -12,6 +12,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ap0nia/eden-react-query": "^1.6.0",
     "@elysiajs/eden": "^1.2.0",
     "@elysiajs/opentelemetry": "^1.2.0",
     "@hookform/resolvers": "^3.10.0",
@@ -45,7 +46,8 @@
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tailwindcss/postcss": "^4.0.0",
-    "@tanstack/react-query": "^5.51.23",
+    "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.66.0",
     "@types/bun": "^1.2.2",
     "@types/signale": "^1.4.7",
     "@vercel/postgres": "^0.10.0",

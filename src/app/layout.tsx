@@ -6,6 +6,7 @@ import Link from "next/link"
 import { NavBar } from "@/components/ui/tubelight-navbar"
 import { Home, User, Settings, DollarSign } from "lucide-react"
 import { Toaster } from "sonner"
+import { Providers } from "./components/providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -36,12 +37,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
-        <header className="fixed top-0 left-0 right-0 z-40">
-          <NavBar items={navItems} />
-        </header>
+        <Providers>
+          <header className="fixed top-0 left-0 right-0 z-40">
+            <NavBar items={navItems} />
+          </header>
 
-        {children}
-        <Toaster richColors />
+          {children}
+          <Toaster richColors />
+        </Providers>
       </body>
     </html>
   )

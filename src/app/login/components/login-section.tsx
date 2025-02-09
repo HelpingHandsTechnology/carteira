@@ -6,56 +6,40 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { client } from "@/lib/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-
-const CONTENT = {
-  title: "Bem-vindo de volta",
-  description: "Entre na sua conta ou crie uma nova.",
-  signIn: {
-    title: "Entrar",
-    description: "Digite seu e-mail e senha para entrar na sua conta.",
-    button: "Já possuo conta",
-  },
-  signUp: {
-    title: "Criar conta",
-    description: "Preencha as informações para criar uma nova conta.",
-    button: "Criar nova conta",
-  },
-}
+import { useSignInMutation, useSignUpMutation } from "@/hooks/react-query/auth.query"
 
 export function LoginSection() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [open, setOpen] = useState<"signin" | "signup" | null>(null)
 
-  async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
+  const signIn = useSignInMutation()
+  const signUp = useSignUpMutation()
+
+  function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setIsLoading(true)
 
     const formData = new FormData(event.currentTarget)
     const email = formData.get("email") as string
     const password = formData.get("password") as string
 
-    const { data, error } = await client.api.auth.signin.post({
-      email,
-      password,
-    })
-
-    if (error) {
-      toast.error(error.message)
-      setIsLoading(false)
-      return
-    }
-
-    toast.success("Login realizado com sucesso!")
-    router.push("/dashboard")
+    signIn.mutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          toast.success("Login realizado com sucesso!")
+          router.push("/dashboard")
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
   }
 
-  async function handleSignUp(event: React.FormEvent<HTMLFormElement>) {
+  function handleSignUp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setIsLoading(true)
 
     const formData = new FormData(event.currentTarget)
     const email = formData.get("email") as string
@@ -65,24 +49,18 @@ export function LoginSection() {
 
     if (password !== confirmPassword) {
       toast.error("As senhas não coincidem")
-      setIsLoading(false)
       return
     }
 
-    const { data, error } = await client.api.auth.signup.post({
-      email,
-      password,
-      name,
-    })
-
-    if (error) {
-      toast.error(error.message)
-      setIsLoading(false)
-      return
-    }
-
-    toast.success("Conta criada com sucesso!")
-    router.push("/dashboard")
+    signUp.mutate(
+      { email, password, name },
+      {
+        onSuccess: () => {
+          toast.success("Conta criada com sucesso!")
+          router.push("/dashboard")
+        },
+      }
+    )
   }
 
   return (
@@ -114,8 +92,8 @@ export function LoginSection() {
                 <Label htmlFor="signin-password">Senha</Label>
                 <Input name="password" id="signin-password" type="password" placeholder="Digite sua senha" required />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Entrando..." : CONTENT.signIn.title}
+              <Button type="submit" className="w-full" disabled={signIn.isPending}>
+                {signIn.isPending ? "Entrando..." : CONTENT.signIn.title}
               </Button>
             </form>
           </DialogContent>
@@ -156,8 +134,8 @@ export function LoginSection() {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Criando conta..." : CONTENT.signUp.title}
+              <Button type="submit" className="w-full" disabled={signUp.isPending}>
+                {signUp.isPending ? "Criando conta..." : CONTENT.signUp.title}
               </Button>
             </form>
           </DialogContent>
@@ -165,4 +143,19 @@ export function LoginSection() {
       </div>
     </div>
   )
+}
+
+const CONTENT = {
+  title: "Bem-vindo de volta",
+  description: "Entre na sua conta ou crie uma nova.",
+  signIn: {
+    title: "Entrar",
+    description: "Digite seu e-mail e senha para entrar na sua conta.",
+    button: "Já possuo conta",
+  },
+  signUp: {
+    title: "Criar conta",
+    description: "Preencha as informações para criar uma nova conta.",
+    button: "Criar nova conta",
+  },
 }
