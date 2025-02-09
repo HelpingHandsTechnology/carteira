@@ -38,7 +38,6 @@ export const authRouter = new Elysia({ prefix: "/auth" })
         return ctx.error(status, { message })
       }
 
-      console.log(result.value)
       return {
         success: true,
         data: result.value,

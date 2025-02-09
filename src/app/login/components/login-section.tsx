@@ -11,11 +11,26 @@ import { toast } from "sonner"
 import { useSignInMutation, useSignUpMutation } from "@/hooks/react-query/auth.query"
 
 export function LoginSection() {
-  const router = useRouter()
   const [open, setOpen] = useState<"signin" | "signup" | null>(null)
 
+  return (
+    <div className={cn("w-full max-w-md", "p-6 rounded-lg", "bg-white/50 backdrop-blur-lg", "border border-border/50")}>
+      <div className="space-y-2 text-center mb-8">
+        <TypographyH1>{CONTENT.title}</TypographyH1>
+        <TypographyP>{CONTENT.description}</TypographyP>
+      </div>
+
+      <div className="space-y-4">
+        <SignInDialog open={open === "signin"} onOpenChange={(isOpen) => setOpen(isOpen ? "signin" : null)} />
+        <SignUpDialog open={open === "signup"} onOpenChange={(isOpen) => setOpen(isOpen ? "signup" : null)} />
+      </div>
+    </div>
+  )
+}
+
+function SignInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const router = useRouter()
   const signIn = useSignInMutation()
-  const signUp = useSignUpMutation()
 
   function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -37,6 +52,41 @@ export function LoginSection() {
       }
     )
   }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button size="lg" variant="default" className="w-full">
+          {CONTENT.signIn.button}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{CONTENT.signIn.title}</DialogTitle>
+          <TypographyP>{CONTENT.signIn.description}</TypographyP>
+        </DialogHeader>
+
+        <form className="space-y-4" onSubmit={handleSignIn}>
+          <div className="space-y-2">
+            <Label htmlFor="signin-email">E-mail</Label>
+            <Input name="email" id="signin-email" type="email" placeholder="Digite seu e-mail" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="signin-password">Senha</Label>
+            <Input name="password" id="signin-password" type="password" placeholder="Digite sua senha" required />
+          </div>
+          <Button type="submit" className="w-full" disabled={signIn.isPending}>
+            {signIn.isPending ? "Entrando..." : CONTENT.signIn.title}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SignUpDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const router = useRouter()
+  const signUp = useSignUpMutation()
 
   function handleSignUp(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -64,84 +114,47 @@ export function LoginSection() {
   }
 
   return (
-    <div className={cn("w-full max-w-md", "p-6 rounded-lg", "bg-white/50 backdrop-blur-lg", "border border-border/50")}>
-      <div className="space-y-2 text-center mb-8">
-        <TypographyH1>{CONTENT.title}</TypographyH1>
-        <TypographyP>{CONTENT.description}</TypographyP>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>
+        <Button size="lg" variant="outline" className="w-full">
+          {CONTENT.signUp.button}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{CONTENT.signUp.title}</DialogTitle>
+          <TypographyP>{CONTENT.signUp.description}</TypographyP>
+        </DialogHeader>
 
-      <div className="space-y-4">
-        <Dialog open={open === "signin"} onOpenChange={(isOpen) => setOpen(isOpen ? "signin" : null)}>
-          <DialogTrigger asChild>
-            <Button size="lg" variant="default" className="w-full">
-              {CONTENT.signIn.button}
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{CONTENT.signIn.title}</DialogTitle>
-              <TypographyP>{CONTENT.signIn.description}</TypographyP>
-            </DialogHeader>
-
-            <form className="space-y-4" onSubmit={handleSignIn}>
-              <div className="space-y-2">
-                <Label htmlFor="signin-email">E-mail</Label>
-                <Input name="email" id="signin-email" type="email" placeholder="Digite seu e-mail" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password">Senha</Label>
-                <Input name="password" id="signin-password" type="password" placeholder="Digite sua senha" required />
-              </div>
-              <Button type="submit" className="w-full" disabled={signIn.isPending}>
-                {signIn.isPending ? "Entrando..." : CONTENT.signIn.title}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog open={open === "signup"} onOpenChange={(isOpen) => setOpen(isOpen ? "signup" : null)}>
-          <DialogTrigger asChild>
-            <Button size="lg" variant="outline" className="w-full">
-              {CONTENT.signUp.button}
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{CONTENT.signUp.title}</DialogTitle>
-              <TypographyP>{CONTENT.signUp.description}</TypographyP>
-            </DialogHeader>
-
-            <form className="space-y-4" onSubmit={handleSignUp}>
-              <div className="space-y-2">
-                <Label htmlFor="signup-name">Nome</Label>
-                <Input name="name" id="signup-name" type="text" placeholder="Digite seu nome" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-email">E-mail</Label>
-                <Input name="email" id="signup-email" type="email" placeholder="Digite seu e-mail" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-password">Senha</Label>
-                <Input name="password" id="signup-password" type="password" placeholder="Digite sua senha" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
-                <Input
-                  name="confirm-password"
-                  id="signup-confirm-password"
-                  type="password"
-                  placeholder="Confirme sua senha"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={signUp.isPending}>
-                {signUp.isPending ? "Criando conta..." : CONTENT.signUp.title}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
+        <form className="space-y-4" onSubmit={handleSignUp}>
+          <div className="space-y-2">
+            <Label htmlFor="signup-name">Nome</Label>
+            <Input name="name" id="signup-name" type="text" placeholder="Digite seu nome" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="signup-email">E-mail</Label>
+            <Input name="email" id="signup-email" type="email" placeholder="Digite seu e-mail" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="signup-password">Senha</Label>
+            <Input name="password" id="signup-password" type="password" placeholder="Digite sua senha" required />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+            <Input
+              name="confirm-password"
+              id="signup-confirm-password"
+              type="password"
+              placeholder="Confirme sua senha"
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={signUp.isPending}>
+            {signUp.isPending ? "Criando conta..." : CONTENT.signUp.title}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 

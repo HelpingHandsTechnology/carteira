@@ -61,6 +61,8 @@ globs: src/app/**/*.tsx
    - Extrair conteúdo estático para objetos separados
    - Usar constantes para textos e configurações
    - Facilita manutenção e internacionalização
+   - Sempre no mesmo arquivo do componente
+   - Sempre no final do arquivo
    - Exemplo:
      ```tsx
      const CONTENT = {
