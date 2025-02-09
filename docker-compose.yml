@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -11,6 +11,17 @@ services:
       POSTGRES_DB: carteira
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  postgres_test:
+    image: postgres:16-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: carteira_test
+    tmpfs:
+      - /var/lib/postgresql/data
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -30,4 +41,4 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
 
 volumes:
-  postgres_data: 
+  postgres_data:

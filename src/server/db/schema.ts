@@ -1,5 +1,5 @@
 import { pgTable, serial, text, timestamp, index } from "drizzle-orm/pg-core"
-
+import { InferSelectModel } from "drizzle-orm"
 export const Posts = pgTable(
   "posts",
   {
@@ -11,7 +11,7 @@ export const Posts = pgTable(
   (table) => [index("Post_name_idx").on(table.name)]
 )
 
-export const Users = pgTable(
+export const User = pgTable(
   "users",
   {
     id: serial("id").primaryKey(),
@@ -23,3 +23,6 @@ export const Users = pgTable(
   },
   (table) => [index("User_email_idx").on(table.email)]
 )
+
+export type SelectUser = InferSelectModel<typeof User>
+export type User = Pick<SelectUser, "id" | "email" | "name">

@@ -129,10 +129,108 @@ const { data, error } = await api.posts.post({
 
 ### Error Handling
 
-- Implement proper error types
-- Use proper HTTP status codes
+- Use `neverthrow` for all error handling in the application
+- Never use try/catch directly, always wrap in Result
 - Return structured error responses
 - Log errors appropriately
+
+#### Error Types
+
+```typescript
+// Define domain-specific error types
+export type AuthError = 
+  | { type: 'INVALID_CREDENTIALS' }
+  | { type: 'USER_NOT_FOUND' }
+  | { type: 'EMAIL_ALREADY_EXISTS' }
+
+// Use Result for synchronous operations
+import { Result, ok, err } from 'neverthrow'
+
+function validatePassword(password: string): Result<string, AuthError> {
+  if (password.length < 6) {
+    return err({ type: 'INVALID_CREDENTIALS' })
+  }
+  return ok(password)
+}
+
+// Use ResultAsync for asynchronous operations
+import { ResultAsync } from 'neverthrow'
+
+function findUser(email: string): ResultAsync<User, AuthError> {
+  return ResultAsync.fromPromise(
+    db.users.findUnique({ where: { email } }),
+    () => ({ type: 'USER_NOT_FOUND' })
+  )
+}
+```
+
+#### Error Handling Patterns
+
+1. Chain Operations with `andThen`:
+```typescript
+const signupUser = (data: SignupData): ResultAsync<User, AuthError> => {
+  return validateUser(data)
+    .andThen(createUser)
+    .andThen(sendWelcomeEmail)
+}
+```
+
+2. Transform Errors with `mapErr`:
+```typescript
+const result = await findUser(email)
+  .mapErr((error): ApiError => ({
+    code: 'AUTH_ERROR',
+    message: getErrorMessage(error)
+  }))
+```
+
+3. Combine Multiple Results:
+```typescript
+const results = await ResultAsync.combine([
+  validateEmail(email),
+  validatePassword(password),
+  checkUserExists(email)
+])
+```
+
+4. Handle Side Effects with `andTee`:
+```typescript
+const result = await createUser(data)
+  .andTee(logUserCreation)
+  .andThen(sendWelcomeEmail)
+```
+
+#### Response Structure
+
+All API responses should follow this structure:
+```typescript
+// Success Response
+{
+  success: true,
+  data: T
+}
+
+// Error Response
+{
+  success: false,
+  error: {
+    code: string
+    message: string
+    details?: unknown
+  }
+}
+```
+
+#### Best Practices
+
+1. Always define specific error types for each domain
+2. Use `ResultAsync.fromPromise` for database operations
+3. Chain operations using `andThen` instead of try/catch
+4. Transform low-level errors to domain errors using `mapErr`
+5. Use `combine` when dealing with multiple Results
+6. Log errors at the edge of the system
+7. Never expose internal errors to clients
+8. Document all possible error types in function signatures
 
 ### Testing
 
@@ -174,7 +272,7 @@ describe('Posts API', () => {
 - Implement proper CORS handling
 - Use proper HTTP methods
 
-# Database Guidelines
+## Database Guidelines
 
 ### Schema Management
 
@@ -210,4 +308,40 @@ bun run drizzle-kit push
 - Document schema changes in commit messages
 - Use proper column types and constraints
 - Implement proper indexes for performance
-- Follow naming conventions consisten
+- Follow naming conventions consistently
+
+### Functional Programming with neverthrow
+- Use `.map` instead of `.andThen` for simple transformations
+- Only use `.andThen` when you need to chain async operations or handle errors
+- Keep transformations pure and side-effect free
+- Avoid unnecessary wrapping of values in Result/ResultAsync
+- Use `okAsync` and `errAsync` instead of `Promise.resolve/reject`
+
+```typescript
+// ❌ Don't use Promise.resolve/reject
+return ResultAsync.fromPromise(
+  Promise.resolve(value),
+  () => ({ type: "ERROR" })
+)
+
+// ✅ Use okAsync/errAsync
+return okAsync(value)
+
+// ❌ Don't use Promise.reject with ResultAsync.fromPromise
+return ResultAsync.fromPromise<never, AuthError>(
+  Promise.reject({ type: "NOT_FOUND" }),
+  (e) => e as AuthError
+)
+
+// ✅ Use errAsync directly
+return errAsync({ type: "NOT_FOUND" })
+
+// ❌ Unnecessary Promise wrapping
+return ResultAsync.fromPromise(
+  Promise.resolve(this.mapToUser(user)),
+  () => ({ type: "ERROR" })
+)
+
+// ✅ Direct value wrapping
+return okAsync(this.mapToUser(user))
+```

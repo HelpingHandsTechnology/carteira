@@ -46,6 +46,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@tailwindcss/postcss": "^4.0.0",
     "@tanstack/react-query": "^5.51.23",
+    "@types/bun": "^1.2.2",
     "@types/signale": "^1.4.7",
     "@vercel/postgres": "^0.10.0",
     "cmdk": "1.0.0",
@@ -57,6 +58,7 @@
     "framer-motion": "^12.4.1",
     "input-otp": "^1.4.2",
     "motion": "^12.4.1",
+    "neverthrow": "^8.1.1",
     "next": "^15.1.6",
     "next-themes": "^0.4.4",
     "pg": "^8.13.1",
@@ -69,6 +71,7 @@
     "signale": "^1.4.0",
     "sonner": "^1.7.4",
     "superjson": "^2.2.1",
+    "ts-pattern": "^5.6.2",
     "vaul": "^1.1.2",
     "zod": "^3.24.1"
   },

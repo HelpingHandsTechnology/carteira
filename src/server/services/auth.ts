@@ -1,59 +1,173 @@
 import { eq } from "drizzle-orm"
 import { DbService } from "./db"
-import { Users } from "../db/schema"
+import { SelectUser, User } from "../db/schema"
 import { createHash, randomBytes } from "node:crypto"
+import { Result, ResultAsync, err, ok, okAsync, errAsync } from "neverthrow"
+
+export type AuthError =
+  | { type: "INVALID_CREDENTIALS"; message: string }
+  | { type: "USER_NOT_FOUND"; message: string }
+  | { type: "EMAIL_ALREADY_EXISTS"; message: string }
+  | { type: "DATABASE_ERROR"; message: string }
 
 export class AuthService {
   constructor(private db: typeof DbService.db) {}
 
-  private async hashPassword(password: string): Promise<string> {
-    const salt = randomBytes(16).toString("hex")
-    const hash = createHash("sha256")
-      .update(salt + password)
-      .digest("hex")
-    return `${salt}:${hash}`
+  signUp(data: { email: string; password: string; name: string }): ResultAsync<User, AuthError> {
+    return this.checkExistingUser(data.email)
+      .andThen(this.validateNewUser)
+      .andThen(() =>
+        ResultAsync.fromPromise(
+          Promise.resolve(
+            this.hashPassword(data.password).match(
+              (value) => value,
+              (error) => Promise.reject(error)
+            )
+          ),
+          (e) => e as AuthError
+        )
+      )
+      .andThen((hashedPassword) =>
+        this.createUser({
+          ...data,
+          hashedPassword,
+        })
+      )
   }
 
-  private async verifyPassword(storedHash: string, password: string): Promise<boolean> {
-    const [salt, hash] = storedHash.split(":")
-    if (!salt || !hash) return false
-
-    const newHash = createHash("sha256")
-      .update(salt + password)
-      .digest("hex")
-    return hash === newHash
-  }
-
-  async signUp(data: { email: string; password: string; name: string }) {
-    const hashedPassword = await this.hashPassword(data.password)
-
-    const user = await this.db
-      .insert(Users)
-      .values({
-        email: data.email,
-        password: hashedPassword,
-        name: data.name,
+  private checkExistingUser(email: string): ResultAsync<SelectUser | undefined, AuthError> {
+    return ResultAsync.fromPromise(
+      this.db.query.User.findFirst({
+        where: eq(User.email, email),
+      }),
+      () => ({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to check email",
       })
-      .returning()
-
-    return user[0]
+    )
   }
 
-  async signIn(data: { email: string; password: string }) {
-    const user = await this.db.query.Users.findFirst({
-      where: eq(Users.email, data.email),
+  private validateNewUser(user: SelectUser | undefined): ResultAsync<void, AuthError> {
+    if (user) {
+      return errAsync({
+        type: "EMAIL_ALREADY_EXISTS" as const,
+        message: "Email already in use",
+      })
+    }
+    return okAsync(undefined)
+  }
+
+  private hashPassword(password: string): Result<string, AuthError> {
+    try {
+      const salt = randomBytes(16).toString("hex")
+      const hash = createHash("sha256")
+        .update(salt + password)
+        .digest("hex")
+      return ok(`${salt}:${hash}`)
+    } catch (error) {
+      return err({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to hash password",
+      })
+    }
+  }
+
+  private createUser(data: {
+    email: string
+    password: string
+    name: string
+    hashedPassword: string
+  }): ResultAsync<User, AuthError> {
+    return ResultAsync.fromPromise(
+      this.db
+        .insert(User)
+        .values({
+          email: data.email,
+          password: data.hashedPassword,
+          name: data.name,
+        })
+        .returning(),
+      () => ({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to create user",
+      })
+    ).andThen((users) => {
+      const user = users[0]
+      if (!user) {
+        return errAsync({
+          type: "DATABASE_ERROR" as const,
+          message: "Failed to create user",
+        })
+      }
+      return okAsync(this.mapToUser(user))
     })
+  }
 
-    if (!user) {
-      throw new Error("Invalid credentials")
+  signIn(data: { email: string; password: string }): ResultAsync<User, AuthError> {
+    return this.findUserByEmail(data.email)
+      .andThen((user) => this.validatePassword(user, data.password))
+      .map(this.mapToUser)
+  }
+
+  private findUserByEmail(email: string): ResultAsync<SelectUser, AuthError> {
+    return ResultAsync.fromPromise(
+      this.db.query.User.findFirst({
+        where: eq(User.email, email),
+      }),
+      () => ({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to find user",
+      })
+    ).andThen((user) => {
+      if (!user) {
+        return errAsync({
+          type: "USER_NOT_FOUND" as const,
+          message: "User not found",
+        })
+      }
+      return okAsync(user)
+    })
+  }
+
+  private validatePassword(user: SelectUser, password: string): ResultAsync<SelectUser, AuthError> {
+    return okAsync(this.verifyPassword(user.password, password)).andThen((isValid) => {
+      if (!isValid) {
+        return errAsync({
+          type: "INVALID_CREDENTIALS" as const,
+          message: "Invalid password",
+        })
+      }
+      return okAsync(user)
+    })
+  }
+
+  private verifyPassword(storedHash: string, password: string): Result<boolean, AuthError> {
+    try {
+      const [salt, hash] = storedHash.split(":")
+      if (!salt || !hash) {
+        return err({
+          type: "INVALID_CREDENTIALS" as const,
+          message: "Invalid password format",
+        })
+      }
+
+      const newHash = createHash("sha256")
+        .update(salt + password)
+        .digest("hex")
+      return ok(hash === newHash)
+    } catch (error) {
+      return err({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to verify password",
+      })
     }
+  }
 
-    const validPassword = await this.verifyPassword(user.password, data.password)
-
-    if (!validPassword) {
-      throw new Error("Invalid credentials")
+  private mapToUser(user: SelectUser): User {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
     }
-
-    return user
   }
 }
