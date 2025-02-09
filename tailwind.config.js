@@ -75,6 +75,10 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        rainbow: {
+          "0%": { "background-position": "0%" },
+          "100%": { "background-position": "200%" },
+        },
         aurora: {
           from: {
             backgroundPosition: "50% 50%, 50% 50%",
@@ -120,6 +124,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out",
         "fade-in-up": "fade-in-up 0.5s ease-out",
+        rainbow: "rainbow var(--speed, 2s) infinite linear",
       },
       backgroundImage: {
         "grid-pattern": 'url("/grid-pattern.svg")',

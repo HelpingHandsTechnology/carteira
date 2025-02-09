@@ -19,7 +19,7 @@ export const AuroraBackground = ({
     <main>
       <div
         className={cn(
-          isMobile ? "h-[90vh]" : "h-[70vh]",
+          isMobile ? "h-[100vh]" : "h-[70vh]",
           "relative flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 text-slate-950 transition-bg",
           "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-32 after:bg-gradient-to-b after:from-transparent after:to-white after:z-10",
           className

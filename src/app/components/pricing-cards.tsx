@@ -1,49 +1,79 @@
+"use client"
+
 import { Check, Gift, MoveRight, PartyPopper, PhoneCall } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { TypographyH2, TypographyP, TypographyLead, TypographySmall } from "@/components/ui/typography"
 import { cn } from "@/lib/utils"
+import { motion, useInView } from "framer-motion"
+import { useRef } from "react"
 
 interface PricingProps {
   className?: string
 }
 
 export function Pricing({ className }: PricingProps) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, amount: 0.3 })
+
   return (
-    <div className={cn(className)}>
+    <div className={cn(className)} ref={ref}>
       <div className={cn("container mx-auto")}>
         <div className={cn("flex gap-4 flex-col")}>
-          <Badge className="self-start">{CONTENT.badge}</Badge>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge className="self-start">{CONTENT.badge}</Badge>
+          </motion.div>
+
           <div className="flex gap-2 flex-col">
-            <TypographyH2 className="text-sm md:text-5xl tracking-tighter font-regular">{CONTENT.title}</TypographyH2>
-            <TypographyLead className="text-muted-foreground leading-relaxed max-w-xl">
-              {CONTENT.description}
-            </TypographyLead>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex items-baseline gap-2"
+            >
+              <TypographyH2 className="text-sm md:text-5xl tracking-tighter font-regular">
+                100% Grátis{" "}
+                <span className="text-sm md:text-sm tracking-tighter font-regular">
+                  (E Sem Letrinha Miúda Pra Te Pegar)! 🎉
+                </span>
+              </TypographyH2>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <TypographyLead className="text-muted-foreground leading-relaxed max-w-xl">
+                {CONTENT.description}
+              </TypographyLead>
+            </motion.div>
           </div>
-          <div className="flex justify-center w-full pt-10">
+
+          <motion.div
+            className="flex justify-center w-full pt-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
             <div className="w-full max-w-2xl">
               {CONTENT.plans.map((plan) => (
                 <PricingCard key={plan.id} {...plan} />
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
   )
 }
 
-function PricingCard({
-  title,
-  description,
-  price,
-  features,
-  buttonText,
-  badge,
-  buttonIcon: Icon,
-  variant = "outline",
-}: PricingCardProps) {
+function PricingCard({ title, description, price, features, buttonText, variant = "outline" }: PricingCardProps) {
   return (
     <Card className={cn("w-full rounded-md", variant === "featured" && "shadow-2xl")}>
       <CardHeader>
@@ -63,9 +93,11 @@ function PricingCard({
               <FeatureItem key={index} {...feature} />
             ))}
           </div>
-          <Button variant={variant === "featured" ? "default" : "outline"} className="gap-4">
-            {buttonText} <Icon className="w-4 h-4" />
-          </Button>
+          {buttonText && (
+            <Button variant={variant === "featured" ? "default" : "outline"} className="gap-4">
+              {buttonText}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -77,17 +109,11 @@ function FeatureItem({ title, description, badge }: { title: string; description
     <div className="flex flex-row gap-4">
       <Check className="w-4 h-4 mt-2 text-primary" />
       <div className="flex flex-col">
-        <TypographyP className="flex flex-row gap-2">
-          {title}
-          {badge && (
-            <span className="flex items-center flex-row gap-2">
-              <Badge className="text-sm text-primary-foreground h-4 opacity-40">{badge}</Badge>
-            </span>
-          )}
-        </TypographyP>
         <div className="flex flex-row gap-2">
-          <TypographySmall className="text-muted-foreground text-sm">{description}</TypographySmall>
+          <TypographyP>{title}</TypographyP>
+          {badge && <Badge className="text-sm text-primary-foreground h-4 opacity-40 self-center">{badge}</Badge>}
         </div>
+        <TypographySmall className="text-muted-foreground text-sm">{description}</TypographySmall>
       </div>
     </div>
   )
@@ -101,21 +127,19 @@ interface PricingCardProps {
     title: string
     description: string
   }>
-  buttonText: string
-  buttonIcon: any
+  buttonText?: string
   variant?: "default" | "featured" | "outline"
   badge?: string
 }
 
 const CONTENT = {
   badge: "Descomplique",
-  title: "100% Grátis \n(E Sem Letrinha Miúda Pra Te Pegar)! 🎉",
   description:
     "Por que pagar se você pode compartilhar, economizar e até ganhar um trocado? Nós também odamos taxas escondidas!",
   plans: [
     {
       id: 1,
-      title: "Plano Amigo da Onça 🐾",
+      title: "Plano Dividir & Poupar 💰",
       description: "Para quem curte um *upgrade* na vida sem *downgrade* na carteira.",
       price: 0,
       features: [
@@ -123,7 +147,6 @@ const CONTENT = {
           title: "Assinaturas Ilimitadas",
           description:
             "Adicione quantos serviços quiser: Netflix, Udemy, Crunchyroll, Disney+... Se existe, você pode compartilhar! 🎬",
-          badge: "Popular",
         },
         {
           title: "Divisão de Custos Automática",
@@ -145,8 +168,8 @@ const CONTENT = {
           badge: "Em breve",
         },
       ],
-      buttonText: "Quero Tudo de Graça! 🤑",
-      buttonIcon: PartyPopper, // Ícone de festa para reforçar o tom
+      // buttonText: "Quero Tudo de Graça! 🤑",
+      // buttonIcon: PartyPopper, // Ícone de festa para reforçar o tom
       variant: "featured" as const,
     },
   ],
