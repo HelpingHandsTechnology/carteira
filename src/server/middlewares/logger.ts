@@ -1,7 +1,7 @@
-import { Elysia } from "elysia"
+import type { MiddlewareHandler, Context, Next } from "hono"
 import { Signale } from "signale"
 
-export const logger = new Signale({
+const logger = new Signale({
   config: {
     displayTimestamp: true,
     displayDate: true,
@@ -20,41 +20,22 @@ export const logger = new Signale({
   },
 })
 
-type LoggerState = {
-  startTime: number
+export const loggerMiddleware: MiddlewareHandler = async (c: Context, next: Next) => {
+  const startTime = performance.now()
+
+  logger.request({
+    prefix: c.req.method,
+    message: c.req.path,
+    suffix: "Request started",
+  })
+
+  await next()
+
+  const duration = performance.now() - startTime
+
+  logger.response({
+    prefix: c.req.method,
+    message: c.req.path,
+    suffix: `${duration.toFixed(2)}ms`,
+  })
 }
-
-export const loggerMiddleware = new Elysia({ name: "logger" })
-  .state("loggerState", {
-    startTime: 0,
-  })
-  .onAfterHandle(({ request, store }) => {
-    const state = store.loggerState as LoggerState
-    const duration = performance.now() - state.startTime
-
-    logger.request({
-      prefix: request.method,
-      message: new URL(request.url).pathname,
-      suffix: `${duration.toFixed(2)}ms`,
-    })
-  })
-  .onRequest(async ({ request, store }) => {
-    const state = store.loggerState as LoggerState
-    state.startTime = performance.now()
-
-    const url = new URL(request.url)
-    const params = Object.fromEntries(url.searchParams)
-
-    const details = {
-      ...(Object.keys(params).length > 0 && { params }),
-    }
-
-    logger.request({
-      prefix: request.method,
-      message: url.pathname,
-      suffix: [Object.keys(details).length > 0 ? JSON.stringify(details) : null]
-        .filter(Boolean)
-        .map((s) => `[${s}]`)
-        .join(" "),
-    })
-  })

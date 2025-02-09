@@ -1,9 +1,9 @@
 import { pgTable, text, timestamp, index, decimal, integer, jsonb } from "drizzle-orm/pg-core"
-import { InferSelectModel } from "drizzle-orm"
+import { InferSelectModel, InferInsertModel } from "drizzle-orm"
 import { createId } from "@paralleldrive/cuid2"
 
-export const users = pgTable(
-  "users",
+export const User = pgTable(
+  "user",
   {
     id: text("id")
       .primaryKey()
@@ -19,8 +19,12 @@ export const users = pgTable(
   })
 )
 
-export const accounts = pgTable(
-  "accounts",
+export type UserSelect = InferSelectModel<typeof User>
+export type UserInsert = InferInsertModel<typeof User>
+export type User = Pick<UserSelect, "id" | "email" | "name">
+
+export const Account = pgTable(
+  "account",
   {
     id: text("id")
       .primaryKey()
@@ -28,7 +32,7 @@ export const accounts = pgTable(
     serviceName: text("service_name").notNull(),
     ownerId: text("owner_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => User.id),
     startDate: timestamp("start_date").notNull(),
     expirationDate: timestamp("expiration_date").notNull(),
     status: text("status").notNull().default("ACTIVE"),
@@ -44,18 +48,25 @@ export const accounts = pgTable(
   })
 )
 
-export const accessRequests = pgTable(
-  "access_requests",
+export type AccountSelect = InferSelectModel<typeof Account>
+export type AccountInsert = InferInsertModel<typeof Account>
+export type Account = Pick<
+  AccountSelect,
+  "id" | "serviceName" | "ownerId" | "startDate" | "expirationDate" | "status" | "maxUsers" | "price"
+>
+
+export const AccessRequest = pgTable(
+  "access_request",
   {
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createId()),
     accountId: text("account_id")
       .notNull()
-      .references(() => accounts.id),
+      .references(() => Account.id),
     requesterId: text("requester_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => User.id),
     status: text("status").notNull().default("PENDING"),
     requestDate: timestamp("request_date").defaultNow().notNull(),
     approvalDate: timestamp("approval_date"),
@@ -70,15 +81,22 @@ export const accessRequests = pgTable(
   })
 )
 
-export const transactions = pgTable(
-  "transactions",
+export type AccessRequestSelect = InferSelectModel<typeof AccessRequest>
+export type AccessRequestInsert = InferInsertModel<typeof AccessRequest>
+export type AccessRequest = Pick<
+  AccessRequestSelect,
+  "id" | "accountId" | "requesterId" | "status" | "requestDate" | "approvalDate" | "expirationDate"
+>
+
+export const Transaction = pgTable(
+  "transaction",
   {
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createId()),
     requestId: text("request_id")
       .notNull()
-      .references(() => accessRequests.id),
+      .references(() => AccessRequest.id),
     amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
     status: text("status").notNull().default("PENDING"),
     transactionDate: timestamp("transaction_date").defaultNow().notNull(),
@@ -93,7 +111,14 @@ export const transactions = pgTable(
   })
 )
 
-export const history = pgTable(
+export type TransactionSelect = InferSelectModel<typeof Transaction>
+export type TransactionInsert = InferInsertModel<typeof Transaction>
+export type Transaction = Pick<
+  TransactionSelect,
+  "id" | "requestId" | "amount" | "status" | "transactionDate" | "paymentMethod"
+>
+
+export const History = pgTable(
   "history",
   {
     id: text("id")
@@ -105,7 +130,7 @@ export const history = pgTable(
     metadata: jsonb("metadata"),
     userId: text("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => User.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
@@ -115,28 +140,8 @@ export const history = pgTable(
   })
 )
 
-// Types
-export type UserSelect = InferSelectModel<typeof users>
-export type User = Pick<UserSelect, "id" | "email" | "name">
-export type AccountSelect = InferSelectModel<typeof accounts>
-export type Account = Pick<
-  AccountSelect,
-  "id" | "serviceName" | "ownerId" | "startDate" | "expirationDate" | "status" | "maxUsers" | "price"
->
-
-export type AccessRequestSelect = InferSelectModel<typeof accessRequests>
-export type AccessRequest = Pick<
-  AccessRequestSelect,
-  "id" | "accountId" | "requesterId" | "status" | "requestDate" | "approvalDate" | "expirationDate"
->
-
-export type TransactionSelect = InferSelectModel<typeof transactions>
-export type Transaction = Pick<
-  TransactionSelect,
-  "id" | "requestId" | "amount" | "status" | "transactionDate" | "paymentMethod"
->
-
-export type HistorySelect = InferSelectModel<typeof history>
+export type HistorySelect = InferSelectModel<typeof History>
+export type HistoryInsert = InferInsertModel<typeof History>
 export type History = Pick<
   HistorySelect,
   "id" | "entityType" | "entityId" | "action" | "metadata" | "userId" | "createdAt"

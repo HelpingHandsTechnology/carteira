@@ -8,13 +8,14 @@
     "db:studio": "drizzle-kit studio",
     "tscheck": "tsc --noEmit",
     "dev": "dotenv -e .env -- next dev",
+    "dev:server": "dotenv -e .env -- tsx watch src/server/index.ts",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "start:server": "dotenv -e .env -- tsx src/server/index.ts"
   },
   "dependencies": {
-    "@ap0nia/eden-react-query": "^1.6.0",
-    "@elysiajs/eden": "^1.2.0",
-    "@elysiajs/opentelemetry": "^1.2.0",
+    "@hono/node-server": "^1.13.8",
+    "@hono/zod-validator": "^0.4.2",
     "@hookform/resolvers": "^3.10.0",
     "@oslojs/crypto": "^1.0.1",
     "@paralleldrive/cuid2": "^2.2.2",
@@ -58,9 +59,9 @@
     "date-fns": "^4.1.0",
     "dotenv-cli": "^8.0.0",
     "drizzle-orm": "^0.39.2",
-    "elysia": "^1.2.12",
     "embla-carousel-react": "^8.5.2",
     "framer-motion": "^12.4.1",
+    "hono": "^4.7.0",
     "input-otp": "^1.4.2",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
@@ -99,6 +100,7 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss": "3",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

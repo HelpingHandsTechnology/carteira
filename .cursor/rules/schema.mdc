@@ -1,0 +1,72 @@
+---
+description: Schema Guidelines
+globs: src/server/db/schema.ts
+---
+# Schema Guidelines
+
+## Nomenclatura de Entidades e Tipos
+
+### Entidades (Tabelas)
+- Usar CapitalCase no singular (ex: `User`, `Account`, `Transaction`)
+- Definir a tabela usando `pgTable`
+- Usar snake_case para nomes de colunas no banco
+
+```typescript
+export const User = pgTable(
+  "users", // nome da tabela no banco em snake_case e plural
+  {
+    id: text("id").primaryKey(),
+    firstName: text("first_name").notNull(),
+  }
+)
+```
+
+### Tipos
+Para cada entidade, devem ser definidos 3 tipos nesta ordem:
+
+1. `EntitySelect`: Tipo completo inferido do schema
+```typescript
+export type UserSelect = InferSelectModel<typeof User>
+```
+
+2. `EntityInsert`: Tipo para inserção de dados
+```typescript
+export type UserInsert = InferInsertModel<typeof User>
+```
+
+3. `Entity`: Tipo simplificado para uso no cliente (apenas campos necessários)
+```typescript
+export type User = Pick<UserSelect, "id" | "firstName">
+```
+
+### Exemplo Completo
+
+```typescript
+// Definição da tabela
+export const User = pgTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    firstName: text("first_name").notNull(),
+    email: text("email").notNull(),
+    password: text("password").notNull(), // não exposto no tipo User
+    createdAt: timestamp("created_at").defaultNow(),
+  }
+)
+
+// Tipos
+export type UserSelect = InferSelectModel<typeof User>
+export type UserInsert = InferInsertModel<typeof User>
+export type User = Pick<UserSelect, "id" | "firstName" | "email">
+```
+
+## Boas Práticas
+
+1. Sempre definir os três tipos para cada entidade
+2. Usar `Pick` para expor apenas os campos necessários no tipo `Entity`
+3. Campos sensíveis (ex: password) não devem estar no tipo `Entity`
+4. Manter os tipos agrupados logo após a definição da tabela
+5. Usar índices quando necessário para otimização de queries
+6. Documentar relacionamentos complexos
+7. Usar tipos mais precisos possível (ex: `decimal` para valores monetários)
+8. Definir `notNull()` quando o campo for obrigatório 
