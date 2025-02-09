@@ -8,21 +8,21 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
 const CONTENT = {
-  title: "Welcome back",
-  description: "Sign in to your account or create a new one.",
+  title: "Bem-vindo de volta",
+  description: "Entre na sua conta ou crie uma nova.",
   signIn: {
-    title: "Sign in",
-    description: "Enter your email and password to sign in to your account.",
+    title: "Entrar",
+    description: "Digite seu e-mail e senha para entrar na sua conta.",
+    button: "Já possuo conta",
   },
   signUp: {
-    title: "Create account",
-    description: "Enter your information to create a new account.",
+    title: "Criar conta",
+    description: "Preencha as informações para criar uma nova conta.",
+    button: "Criar nova conta",
   },
 }
 
 export function LoginSection() {
-  const [isSignUp, setIsSignUp] = useState(false)
-
   return (
     <div className={cn("w-full max-w-md", "p-6 rounded-lg", "bg-white/50 backdrop-blur-lg", "border border-border/50")}>
       <div className="space-y-2 text-center mb-8">
@@ -30,45 +30,67 @@ export function LoginSection() {
         <TypographyP>{CONTENT.description}</TypographyP>
       </div>
 
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button size="lg" className="w-full">
-            {isSignUp ? "Create account" : "Sign in"}
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{isSignUp ? CONTENT.signUp.title : CONTENT.signIn.title}</DialogTitle>
-            <TypographyP>{isSignUp ? CONTENT.signUp.description : CONTENT.signIn.description}</TypographyP>
-          </DialogHeader>
+      <div className="space-y-4">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="lg" variant="default" className="w-full">
+              {CONTENT.signIn.button}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{CONTENT.signIn.title}</DialogTitle>
+              <TypographyP>{CONTENT.signIn.description}</TypographyP>
+            </DialogHeader>
 
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="Enter your email" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="Enter your password" required />
-            </div>
-            {isSignUp && (
+            <form className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" placeholder="Confirm your password" required />
+                <Label htmlFor="signin-email">E-mail</Label>
+                <Input id="signin-email" type="email" placeholder="Digite seu e-mail" required />
               </div>
-            )}
-            <Button type="submit" className="w-full">
-              {isSignUp ? "Create account" : "Sign in"}
-            </Button>
-          </form>
+              <div className="space-y-2">
+                <Label htmlFor="signin-password">Senha</Label>
+                <Input id="signin-password" type="password" placeholder="Digite sua senha" required />
+              </div>
+              <Button type="submit" className="w-full">
+                {CONTENT.signIn.title}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
 
-          <div className="text-center">
-            <Button variant="link" onClick={() => setIsSignUp(!isSignUp)} className="text-sm">
-              {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Create one"}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="lg" variant="outline" className="w-full">
+              {CONTENT.signUp.button}
             </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{CONTENT.signUp.title}</DialogTitle>
+              <TypographyP>{CONTENT.signUp.description}</TypographyP>
+            </DialogHeader>
+
+            <form className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signup-email">E-mail</Label>
+                <Input id="signup-email" type="email" placeholder="Digite seu e-mail" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-password">Senha</Label>
+                <Input id="signup-password" type="password" placeholder="Digite sua senha" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                <Input id="signup-confirm-password" type="password" placeholder="Confirme sua senha" required />
+              </div>
+              <Button type="submit" className="w-full">
+                {CONTENT.signUp.title}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }

@@ -8,6 +8,7 @@ import { Pricing } from "@/app/components/pricing-cards"
 import { BottomCtaSection } from "./components/bototm-cta"
 import { RainbowButton } from "./components/rainbow-button"
 import Link from "next/link"
+import { Footer } from "react-day-picker"
 
 export default function Home() {
   return (
@@ -21,6 +22,7 @@ export default function Home() {
       <ValueProposition />
       <Pricing />
       <BottomCtaSection />
+      <Footer />
     </main>
   )
 }
