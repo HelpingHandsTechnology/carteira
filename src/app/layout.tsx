@@ -5,6 +5,7 @@ import "./globals.css"
 import Link from "next/link"
 import { NavBar } from "@/components/ui/tubelight-navbar"
 import { Home, User, Settings, DollarSign } from "lucide-react"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         {children}
+        <Toaster richColors />
       </body>
     </html>
   )

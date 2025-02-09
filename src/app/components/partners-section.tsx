@@ -43,6 +43,8 @@ const partners = [
     img: (props: any) => (
       <Image
         src="/logos/bitwarden.svg"
+        width={100}
+        height={100}
         alt="Bitwarden"
         className={cn("h-full w-full object-contain", props.className)}
       />
@@ -52,14 +54,26 @@ const partners = [
     name: "Netflix",
     id: 2,
     img: (props: any) => (
-      <Image src="/logos/netflix.svg" alt="Netflix" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/netflix.svg"
+        width={100}
+        height={100}
+        alt="Netflix"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
     name: "Spotify",
     id: 3,
     img: (props: any) => (
-      <Image src="/logos/spotify.svg" alt="Spotify" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        src="/logos/spotify.svg"
+        width={100}
+        height={100}
+        alt="Spotify"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
@@ -68,6 +82,8 @@ const partners = [
     img: (props: any) => (
       <Image
         src="/logos/apple-tv.svg"
+        width={100}
+        height={100}
         alt="Apple TV+"
         className={cn("h-full w-full object-contain", props.className)}
       />
@@ -77,8 +93,10 @@ const partners = [
     name: "Prime Video",
     id: 6,
     img: (props: any) => (
-      <img
+      <Image
         src="/logos/prime-video.svg"
+        width={100}
+        height={100}
         alt="Prime Video"
         className={cn("h-full w-full object-contain", props.className)}
       />
@@ -88,21 +106,35 @@ const partners = [
     name: "Audible",
     id: 7,
     img: (props: any) => (
-      <Image src="/logos/audible.svg" alt="Audible" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        width={100}
+        height={100}
+        src="/logos/audible.svg"
+        alt="Audible"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
     name: "Coursera",
     id: 8,
     img: (props: any) => (
-      <Image src="/logos/coursera.svg" alt="Coursera" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        width={100}
+        height={100}
+        src="/logos/coursera.svg"
+        alt="Coursera"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
     name: "Crunchyroll",
     id: 9,
     img: (props: any) => (
-      <img
+      <Image
+        width={100}
+        height={100}
         src="/logos/crunchroll.svg"
         alt="Crunchyroll"
         className={cn("h-full w-full object-contain", props.className)}
@@ -113,14 +145,26 @@ const partners = [
     name: "HBO",
     id: 10,
     img: (props: any) => (
-      <Image src="/logos/hbo.svg" alt="HBO" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        width={100}
+        height={100}
+        src="/logos/hbo.svg"
+        alt="HBO"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
     name: "Udemy",
     id: 11,
     img: (props: any) => (
-      <Image src="/logos/udemy.svg" alt="Udemy" className={cn("h-full w-full object-contain", props.className)} />
+      <Image
+        width={100}
+        height={100}
+        src="/logos/udemy.svg"
+        alt="Udemy"
+        className={cn("h-full w-full object-contain", props.className)}
+      />
     ),
   },
   {
@@ -131,6 +175,8 @@ const partners = [
         src="/logos/gramally.svg"
         alt="Grammarly"
         className={cn("h-full w-full object-contain", props.className)}
+        width={100}
+        height={100}
       />
     ),
   },
@@ -138,7 +184,9 @@ const partners = [
     name: "Skillshare",
     id: 13,
     img: (props: any) => (
-      <img
+      <Image
+        width={100}
+        height={100}
         src="/logos/skill-share.svg"
         alt="Skillshare"
         className={cn("h-full w-full object-contain", props.className)}
@@ -151,6 +199,8 @@ const partners = [
     img: (props: any) => (
       <Image
         src="/logos/canva-pro.svg"
+        width={100}
+        height={100}
         alt="Canva Pro"
         className={cn("h-full w-full object-contain", props.className)}
       />

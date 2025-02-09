@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { client } from "@/lib/client"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const CONTENT = {
   title: "Bem-vindo de volta",
@@ -23,6 +26,65 @@ const CONTENT = {
 }
 
 export function LoginSection() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [open, setOpen] = useState<"signin" | "signup" | null>(null)
+
+  async function handleSignIn(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    const { data, error } = await client.api.auth.signin.post({
+      email,
+      password,
+    })
+
+    if (error) {
+      toast.error(error.message)
+      setIsLoading(false)
+      return
+    }
+
+    toast.success("Login realizado com sucesso!")
+    router.push("/dashboard")
+  }
+
+  async function handleSignUp(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const confirmPassword = formData.get("confirm-password") as string
+    const name = formData.get("name") as string
+
+    if (password !== confirmPassword) {
+      toast.error("As senhas não coincidem")
+      setIsLoading(false)
+      return
+    }
+
+    const { data, error } = await client.api.auth.signup.post({
+      email,
+      password,
+      name,
+    })
+
+    if (error) {
+      toast.error(error.message)
+      setIsLoading(false)
+      return
+    }
+
+    toast.success("Conta criada com sucesso!")
+    router.push("/dashboard")
+  }
+
   return (
     <div className={cn("w-full max-w-md", "p-6 rounded-lg", "bg-white/50 backdrop-blur-lg", "border border-border/50")}>
       <div className="space-y-2 text-center mb-8">
@@ -31,7 +93,7 @@ export function LoginSection() {
       </div>
 
       <div className="space-y-4">
-        <Dialog>
+        <Dialog open={open === "signin"} onOpenChange={(isOpen) => setOpen(isOpen ? "signin" : null)}>
           <DialogTrigger asChild>
             <Button size="lg" variant="default" className="w-full">
               {CONTENT.signIn.button}
@@ -43,23 +105,23 @@ export function LoginSection() {
               <TypographyP>{CONTENT.signIn.description}</TypographyP>
             </DialogHeader>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSignIn}>
               <div className="space-y-2">
                 <Label htmlFor="signin-email">E-mail</Label>
-                <Input id="signin-email" type="email" placeholder="Digite seu e-mail" required />
+                <Input name="email" id="signin-email" type="email" placeholder="Digite seu e-mail" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signin-password">Senha</Label>
-                <Input id="signin-password" type="password" placeholder="Digite sua senha" required />
+                <Input name="password" id="signin-password" type="password" placeholder="Digite sua senha" required />
               </div>
-              <Button type="submit" className="w-full">
-                {CONTENT.signIn.title}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Entrando..." : CONTENT.signIn.title}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
 
-        <Dialog>
+        <Dialog open={open === "signup"} onOpenChange={(isOpen) => setOpen(isOpen ? "signup" : null)}>
           <DialogTrigger asChild>
             <Button size="lg" variant="outline" className="w-full">
               {CONTENT.signUp.button}
@@ -71,21 +133,31 @@ export function LoginSection() {
               <TypographyP>{CONTENT.signUp.description}</TypographyP>
             </DialogHeader>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSignUp}>
+              <div className="space-y-2">
+                <Label htmlFor="signup-name">Nome</Label>
+                <Input name="name" id="signup-name" type="text" placeholder="Digite seu nome" required />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">E-mail</Label>
-                <Input id="signup-email" type="email" placeholder="Digite seu e-mail" required />
+                <Input name="email" id="signup-email" type="email" placeholder="Digite seu e-mail" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Senha</Label>
-                <Input id="signup-password" type="password" placeholder="Digite sua senha" required />
+                <Input name="password" id="signup-password" type="password" placeholder="Digite sua senha" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
-                <Input id="signup-confirm-password" type="password" placeholder="Confirme sua senha" required />
+                <Input
+                  name="confirm-password"
+                  id="signup-confirm-password"
+                  type="password"
+                  placeholder="Confirme sua senha"
+                  required
+                />
               </div>
-              <Button type="submit" className="w-full">
-                {CONTENT.signUp.title}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Criando conta..." : CONTENT.signUp.title}
               </Button>
             </form>
           </DialogContent>
