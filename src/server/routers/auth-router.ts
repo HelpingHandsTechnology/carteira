@@ -3,6 +3,7 @@ import { AuthService } from "../services/auth"
 import { DbService } from "../services/db"
 import type { AuthError } from "../services/auth"
 import { match } from "ts-pattern"
+
 export class AuthModel {
   static signUp = t.Object({
     email: t.String({ format: "email", error: "Invalid email format" }),
@@ -22,11 +23,26 @@ const getErrorResponse = (error: AuthError) => {
     .with({ type: "USER_NOT_FOUND" }, () => ({ status: 404, message: error.message }))
     .with({ type: "EMAIL_ALREADY_EXISTS" }, () => ({ status: 409, message: error.message }))
     .with({ type: "DATABASE_ERROR" }, () => ({ status: 500, message: "Internal server error" }))
+    .with({ type: "UNAUTHORIZED" }, () => ({ status: 401, message: error.message }))
     .exhaustive()
 }
 
 export const authRouter = new Elysia({ prefix: "/auth" })
   .decorate("authService", new AuthService(DbService.db))
+  .get("/me", async (ctx) => {
+    // TODO: Pegar o userId do token de autenticação
+    const userId = 1 // Temporário
+
+    const result = await ctx.authService.me(userId)
+
+    if (result.isErr()) {
+      const { status, message } = getErrorResponse(result.error)
+      ctx.set.status = status
+      return ctx.error(status, { message })
+    }
+
+    return result.value
+  })
   .post(
     "/signup",
     async (ctx) => {

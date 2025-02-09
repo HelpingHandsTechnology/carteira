@@ -44,7 +44,7 @@ function SignInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
       {
         onSuccess: () => {
           toast.success("Login realizado com sucesso!")
-          router.push("/dashboard")
+          router.push("/app")
         },
         onError: (error) => {
           toast.error(error.message)

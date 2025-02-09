@@ -9,9 +9,30 @@ export type AuthError =
   | { type: "USER_NOT_FOUND"; message: string }
   | { type: "EMAIL_ALREADY_EXISTS"; message: string }
   | { type: "DATABASE_ERROR"; message: string }
+  | { type: "UNAUTHORIZED"; message: string }
 
 export class AuthService {
   constructor(private db: typeof DbService.db) {}
+
+  me(userId: number): ResultAsync<User, AuthError> {
+    return ResultAsync.fromPromise(
+      this.db.query.User.findFirst({
+        where: eq(User.id, userId),
+      }),
+      () => ({
+        type: "DATABASE_ERROR" as const,
+        message: "Failed to find user",
+      })
+    ).andThen((user) => {
+      if (!user) {
+        return errAsync({
+          type: "UNAUTHORIZED" as const,
+          message: "Unauthorized",
+        })
+      }
+      return okAsync(this.mapToUser(user))
+    })
+  }
 
   signUp(data: { email: string; password: string; name: string }): ResultAsync<User, AuthError> {
     return this.checkExistingUser(data.email)

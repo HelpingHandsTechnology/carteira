@@ -1,0 +1,143 @@
+---
+description: Diretrizes para uso do React Query
+globs: 
+---
+## Estrutura de Arquivos
+
+1. Organização por Entidade
+   - Criar um arquivo `.query.ts` para cada entidade
+   - Localizar em `src/hooks/react-query/{entity}.query.ts`
+   - Exemplo:
+     ```
+     src/hooks/react-query/
+     ├── auth.query.ts
+     ├── users.query.ts
+     ├── transactions.query.ts
+     └── categories.query.ts
+     ```
+
+2. Nomenclatura de Hooks
+   - Queries: `use{Entity}Query` ou `use{Entity}Queries`
+   - Mutations: `use{Entity}{Action}Mutation`
+   - Exemplos:
+     ```typescript
+     useUserQuery()        // buscar um usuário
+     useUsersQuery()       // buscar vários usuários
+     useUserCreateMutation() // criar usuário
+     useUserUpdateMutation() // atualizar usuário
+     ```
+
+## Padrões de Implementação
+
+1. Estrutura do Arquivo
+   ```typescript
+   // 1. Imports
+   import { useQuery, useMutation } from "@tanstack/react-query"
+   import { client } from "@/lib/client"
+
+   // 2. Types
+   type EntityData = {
+     // ...
+   }
+
+   // 3. Query Keys
+
+   // 4. Queries
+   export const useEntityQuery = (id: string) => {
+     return useQuery({
+       queryKey: queryKeys.detail(id),
+       queryFn: () => client.api.entity.get({ id })
+     })
+   }
+
+  useEntityQuery.queryKey = (params: { scriptId?: string }) => {
+    return ['useEntityQuery', params.scriptId];
+  };
+  useEntityQuery.invalidate = (
+    queryClient: QueryClient,
+    params: { scriptId?: string },
+  ) => {
+    queryClient.invalidateQueries({
+      queryKey: useEntityQuery.queryKey(params),
+    });
+  };
+  useEntityQuery.setData = (
+    queryClient: QueryClient,
+    params: Parameters<typeof useEntityQuery.queryKey>[0],
+    data: Updater<
+      ReturnType<typeof useEntityQuery>['data'],
+      ReturnType<typeof useEntityQuery>['data']
+    >,
+  ) => {
+    queryClient.setQueryData(useEntityQuery.queryKey(params), data);
+  };
+
+   // 5. Mutations
+   export const useEntityCreateMutation = () => {
+     return useMutation({
+       mutationFn: (data: EntityData) => client.api.entity.post(data)
+     })
+   }
+   ```
+
+2. Tratamento de Erros
+   - Sempre usar o `onError` global do QueryClient
+   - Implementar tratamento específico quando necessário
+   - Exemplo:
+     ```typescript
+     export const useEntityMutation = () => {
+       return useMutation({
+         mutationFn: (data) => client.api.entity.post(data),
+         onError: (error) => {
+           // Tratamento específico
+         }
+       })
+     }
+     ```
+
+3. Cache e Invalidação
+   - Definir `staleTime` apropriado para cada query
+   - Invalidar cache após mutações
+   - Exemplo:
+     ```typescript
+     export const useEntityCreateMutation = () => {
+       const queryClient = useQueryClient()
+       
+       return useMutation({
+         mutationFn: (data) => client.api.entity.post(data),
+         onSuccess: () => {
+           queryClient.invalidateQueries(queryKeys.all)
+         }
+       })
+     }
+     ```
+
+## Boas Práticas
+
+1. Chamadas à API
+   - NUNCA fazer chamadas diretas ao cliente HTTP
+   - SEMPRE usar hooks do React Query
+   - Centralizar lógica de API nos arquivos `.query.ts`
+
+2. Revalidação e Cache
+   - Configurar `staleTime` baseado no tipo de dado
+   - Dados estáticos: `Infinity`
+   - Dados dinâmicos: 5 minutos (padrão)
+   - Dados em tempo real: 0
+
+3. Otimizações
+   - Usar `select` para transformar dados
+   - Implementar `prefetch` quando apropriado
+   - Configurar `retry` baseado no tipo de erro
+
+     ```
+
+## Checklist de Implementação
+
+- [ ] Arquivo está na pasta correta?
+- [ ] Nomenclatura segue o padrão?
+- [ ] Query keys estão organizadas?
+- [ ] Tipos estão definidos?
+- [ ] Tratamento de erro implementado?
+- [ ] Cache configurado apropriadamente?
+- [ ] Invalidação de cache implementada? 
