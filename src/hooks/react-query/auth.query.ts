@@ -2,6 +2,11 @@ import { useMutation, useQueryClient, QueryClient, Updater, useQuery } from "@ta
 import { client } from "@/lib/client"
 import type { User } from "@/server/db/schema"
 
+type AuthResponse = {
+  user: User
+  token: string
+}
+
 export const useUser = () => {
   const queryClient = useQueryClient()
 
@@ -42,7 +47,7 @@ export const useSignInMutation = () => {
         throw new Error(error.message)
       }
 
-      return response.data
+      return response.data as AuthResponse
     },
   })
 }
@@ -70,7 +75,7 @@ export const useSignUpMutation = () => {
         throw new Error(error.message)
       }
 
-      return response.data
+      return response.data as AuthResponse
     },
   })
 }
@@ -85,4 +90,29 @@ useSignUpMutation.invalidate = (queryClient: QueryClient) => {
 
 useSignUpMutation.setData = (queryClient: QueryClient, data: Updater<User | null, User | null>) => {
   queryClient.setQueryData(useSignUpMutation.queryKey(), data)
+}
+
+export const useLogoutMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data: response, error } = await client.api.auth.logout.post()
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      queryClient.clear()
+      return response
+    },
+  })
+}
+
+useLogoutMutation.queryKey = () => ["auth", "logout"]
+
+useLogoutMutation.invalidate = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({
+    queryKey: useLogoutMutation.queryKey(),
+  })
 }

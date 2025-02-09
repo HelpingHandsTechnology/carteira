@@ -3,6 +3,7 @@ import { AuthService } from "../services/auth"
 import { DbService } from "../services/db"
 import type { AuthError } from "../services/auth"
 import { match } from "ts-pattern"
+import { COOKIE_KEYS, COOKIE_CONFIG } from "../constants"
 
 export class AuthModel {
   static signUp = t.Object({
@@ -30,10 +31,13 @@ const getErrorResponse = (error: AuthError) => {
 export const authRouter = new Elysia({ prefix: "/auth" })
   .decorate("authService", new AuthService(DbService.db))
   .get("/me", async (ctx) => {
-    // TODO: Pegar o userId do token de autenticação
-    const userId = 1 // Temporário
+    const { userId } = ctx.cookie
 
-    const result = await ctx.authService.me(userId)
+    if (!userId) {
+      return ctx.error(401, { message: "Unauthorized" })
+    }
+
+    const result = await ctx.authService.me(Number(userId))
 
     if (result.isErr()) {
       const { status, message } = getErrorResponse(result.error)
@@ -42,6 +46,38 @@ export const authRouter = new Elysia({ prefix: "/auth" })
     }
 
     return result.value
+  })
+  .get("/verify", async (ctx) => {
+    const token = ctx.headers.authorization?.replace("Bearer ", "")
+
+    if (!token) {
+      ctx.set.status = 401
+      return ctx.error(401, { message: "Token não fornecido" })
+    }
+
+    const result = await ctx.authService.verifyToken(token)
+
+    if (result.isErr()) {
+      const { status, message } = getErrorResponse(result.error)
+      ctx.set.status = status
+      return ctx.error(status, { message })
+    }
+
+    const userResult = await ctx.authService.me(result.value.userId)
+
+    if (userResult.isErr()) {
+      const { status, message } = getErrorResponse(userResult.error)
+      ctx.set.status = status
+      return ctx.error(status, { message })
+    }
+
+    return {
+      success: true,
+      data: {
+        user: userResult.value,
+        userId: result.value.userId,
+      },
+    }
   })
   .post(
     "/signup",
@@ -53,6 +89,16 @@ export const authRouter = new Elysia({ prefix: "/auth" })
         ctx.set.status = status
         return ctx.error(status, { message })
       }
+
+      ctx.cookie[COOKIE_KEYS.userId]?.set({
+        value: String(result.value.user.id),
+        ...COOKIE_CONFIG,
+      })
+
+      ctx.cookie[COOKIE_KEYS.token]?.set({
+        value: result.value.token,
+        ...COOKIE_CONFIG,
+      })
 
       return {
         success: true,
@@ -74,6 +120,15 @@ export const authRouter = new Elysia({ prefix: "/auth" })
         return ctx.error(status, { message })
       }
 
+      ctx.cookie[COOKIE_KEYS.userId]?.set({
+        value: String(result.value.user.id),
+        ...COOKIE_CONFIG,
+      })
+      ctx.cookie[COOKIE_KEYS.token]?.set({
+        value: result.value.token,
+        ...COOKIE_CONFIG,
+      })
+
       return {
         success: true,
         data: result.value,
@@ -83,3 +138,12 @@ export const authRouter = new Elysia({ prefix: "/auth" })
       body: AuthModel.signIn,
     }
   )
+  .post("/logout", async (ctx) => {
+    ctx.cookie[COOKIE_KEYS.userId]?.remove()
+    ctx.cookie[COOKIE_KEYS.token]?.remove()
+
+    return {
+      success: true,
+      data: null,
+    }
+  })

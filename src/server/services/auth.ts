@@ -3,6 +3,13 @@ import { DbService } from "./db"
 import { SelectUser, User } from "../db/schema"
 import { createHash, randomBytes } from "node:crypto"
 import { Result, ResultAsync, err, ok, okAsync, errAsync } from "neverthrow"
+import jwt from "jsonwebtoken"
+import { JWT_SECRET } from "../constants"
+
+export type AuthResponse = {
+  user: User
+  token: string
+}
 
 export type AuthError =
   | { type: "INVALID_CREDENTIALS"; message: string }
@@ -13,6 +20,20 @@ export type AuthError =
 
 export class AuthService {
   constructor(private db: typeof DbService.db) {}
+
+  verifyToken(token: string): ResultAsync<{ userId: number }, AuthError> {
+    return ResultAsync.fromPromise(
+      Promise.resolve().then(() => {
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET) as { userId: number }
+          return decoded
+        } catch (error) {
+          throw { type: "UNAUTHORIZED" as const, message: "Token inválido" }
+        }
+      }),
+      (error) => error as AuthError
+    )
+  }
 
   me(userId: number): ResultAsync<User, AuthError> {
     return ResultAsync.fromPromise(
@@ -34,7 +55,7 @@ export class AuthService {
     })
   }
 
-  signUp(data: { email: string; password: string; name: string }): ResultAsync<User, AuthError> {
+  signUp(data: { email: string; password: string; name: string }): ResultAsync<AuthResponse, AuthError> {
     return this.checkExistingUser(data.email)
       .andThen(this.validateNewUser)
       .andThen(() =>
@@ -54,6 +75,24 @@ export class AuthService {
           hashedPassword,
         })
       )
+      .map((user) => ({
+        user,
+        token: this.generateToken(user),
+      }))
+  }
+
+  signIn(data: { email: string; password: string }): ResultAsync<AuthResponse, AuthError> {
+    return this.findUserByEmail(data.email)
+      .andThen((user) => this.validatePassword(user, data.password))
+      .map(this.mapToUser)
+      .map((user) => ({
+        user,
+        token: this.generateToken(user),
+      }))
+  }
+
+  private generateToken(user: User): string {
+    return jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" })
   }
 
   private checkExistingUser(email: string): ResultAsync<SelectUser | undefined, AuthError> {
@@ -122,12 +161,6 @@ export class AuthService {
       }
       return okAsync(this.mapToUser(user))
     })
-  }
-
-  signIn(data: { email: string; password: string }): ResultAsync<User, AuthError> {
-    return this.findUserByEmail(data.email)
-      .andThen((user) => this.validatePassword(user, data.password))
-      .map(this.mapToUser)
   }
 
   private findUserByEmail(email: string): ResultAsync<SelectUser, AuthError> {

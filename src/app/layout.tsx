@@ -10,38 +10,11 @@ import { Providers } from "./components/providers"
 
 const inter = Inter({ subsets: ["latin"] })
 
-const navItems = [
-  {
-    name: "Home",
-    url: "/",
-    icon: Home,
-  },
-  {
-    name: "__About__",
-    url: "/about",
-    icon: User,
-  },
-  {
-    name: "__Projects__",
-    url: "/projects",
-    icon: Settings,
-  },
-  {
-    name: "__Resume__",
-    url: "/resume",
-    icon: DollarSign,
-  },
-]
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <body className={inter.className}>
         <Providers>
-          <header className="fixed top-0 left-0 right-0 z-40">
-            <NavBar items={navItems} />
-          </header>
-
           {children}
           <Toaster richColors />
         </Providers>

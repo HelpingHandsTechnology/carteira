@@ -107,7 +107,7 @@ function SignUpDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (op
       {
         onSuccess: () => {
           toast.success("Conta criada com sucesso!")
-          router.push("/dashboard")
+          router.push("/app")
         },
       }
     )
