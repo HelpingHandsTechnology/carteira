@@ -39,6 +39,16 @@ const app = new Elysia({ prefix: '/api' })
   })
 ```
 
+## Ambiente de Desenvolvimento
+
+- Usar sempre Bun ao invés de npm/yarn para todas as operações:
+  - Instalação de pacotes: `bun add` ao invés de `npm install`
+  - Scripts: `bun run` ao invés de `npm run`
+  - Desenvolvimento: `bun dev` ao invés de `npm run dev`
+  - Testes: `bun test` ao invés de `npm test`
+- Aproveitar as otimizações e velocidade que o Bun oferece
+- Manter o bun.lockb no controle de versão
+
 ### Route Handlers
 
 - Use descriptive route names in plural form
