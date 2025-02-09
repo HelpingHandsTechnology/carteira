@@ -35,6 +35,7 @@ globs: src/app/**/*.tsx
    - Componente principal exportado sempre no topo do arquivo
    - Componentes auxiliares e funções de suporte logo abaixo
    - Facilita a visualização e entendimento do código
+   - Isso também se aplica para o `const CONTENT`
    - Exemplo:
      ```tsx
      // ✅ Correto
