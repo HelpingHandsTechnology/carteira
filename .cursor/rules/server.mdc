@@ -49,6 +49,7 @@ const app = new Elysia({ prefix: '/api' })
 ### Model Pattern
 
 - Create a Model class for each resource to handle validation and types
+- Models should always be defined in the same file as their corresponding router
 - Use static properties for schema definitions
 - Reuse validation schemas across routes
 - Keep validation logic centralized
@@ -172,3 +173,41 @@ describe('Posts API', () => {
 - Follow security best practices
 - Implement proper CORS handling
 - Use proper HTTP methods
+
+# Database Guidelines
+
+### Schema Management
+
+- Use Drizzle ORM for database operations
+- Keep schema definitions in `src/server/db/schema.ts`
+- Use TypeScript for type-safe schema definitions
+- Follow naming conventions (plural for tables, singular for columns)
+
+### Migration Strategy
+
+- Avoid using migrations for development
+- Use `drizzle-kit push` for schema updates
+- Only use migrations in production environments
+- Keep schema changes backwards compatible
+- Document breaking changes in schema
+
+### Schema Updates
+
+```typescript
+// Use push command for development
+bun run drizzle-kit push
+
+// Avoid using migrations during development
+// ❌ bun run drizzle-kit generate
+// ❌ bun run drizzle-kit migrate
+```
+
+### Best Practices for Schema Changes
+
+- Always use `push` command for development
+- Test schema changes locally before pushing
+- Keep schema changes atomic and focused
+- Document schema changes in commit messages
+- Use proper column types and constraints
+- Implement proper indexes for performance
+- Follow naming conventions consisten
