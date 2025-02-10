@@ -102,10 +102,12 @@ class AuthService {
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      () => ({
-        type: "DATABASE_ERROR" as const,
-        message: "Não foi possível verificar o email",
-      })
+      (error) => {
+        return {
+          type: "DATABASE_ERROR" as const,
+          message: "Não foi possível verificar o email",
+        }
+      }
     )
   }
 
@@ -170,10 +172,12 @@ class AuthService {
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      () => ({
-        type: "DATABASE_ERROR" as const,
-        message: "Não foi possível encontrar o usuário",
-      })
+      (error) => {
+        return {
+          type: "DATABASE_ERROR" as const,
+          message: "Não foi possível encontrar o usuário",
+        }
+      }
     ).andThen((user) => {
       if (!user) {
         return errAsync({

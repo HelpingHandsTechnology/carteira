@@ -3,6 +3,9 @@ import { useUser, useLogoutMutation } from "@/hooks/react-query/auth.query"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { AccountsSection } from "./components/accounts-section"
+import { Header } from "./components/header"
+import { Sidebar } from "@/components/ui/sidebar"
 
 export default function AppPage() {
   const router = useRouter()
@@ -19,15 +22,13 @@ export default function AppPage() {
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Bem-vindo, {user?.name}!</h1>
-        <Button variant="outline" onClick={handleLogout} disabled={logout.isPending}>
-          {logout.isPending ? "Saindo..." : "Sair"}
-        </Button>
-      </div>
-
-      <pre className="bg-muted p-4 rounded-lg">{JSON.stringify(user, null, 2)}</pre>
+    <div className="flex h-screen bg-background">
+      <main className="flex-1 overflow-y-auto">
+        <Header />
+        <div className="container mx-auto py-8">
+          <AccountsSection />
+        </div>
+      </main>
     </div>
   )
 }

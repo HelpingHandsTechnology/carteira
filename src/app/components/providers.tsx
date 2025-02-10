@@ -1,5 +1,6 @@
 "use client"
 
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { PropsWithChildren, useState } from "react"

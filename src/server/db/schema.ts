@@ -31,6 +31,7 @@ export const Account = pgTable("accounts", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
+export type AccountStatus = AccountSelect["status"]
 
 export type AccountSelect = InferSelectModel<typeof Account>
 export type AccountInsert = InferInsertModel<typeof Account>
@@ -83,6 +84,7 @@ export type Transaction = Pick<
   TransactionSelect,
   "id" | "accountId" | "userId" | "amount" | "status" | "createdAt" | "updatedAt"
 >
+export type TransactionStatus = TransactionSelect["status"]
 
 export const History = pgTable("history", {
   id: uuid("id").primaryKey().defaultRandom(),
