@@ -54,7 +54,7 @@ const Typewriter = ({
   const texts = Array.isArray(text) ? text : [text]
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout
+    let timeout: any
 
     const currentText = texts[currentTextIndex]
 

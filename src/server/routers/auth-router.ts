@@ -1,5 +1,4 @@
 import { Hono } from "hono"
-import { HTTPException } from "hono/http-exception"
 import { z } from "zod"
 import { zValidator } from "@hono/zod-validator"
 import { authService, type AuthError } from "../services/auth"
@@ -7,7 +6,8 @@ import { match } from "ts-pattern"
 import { COOKIE_KEYS, COOKIE_CONFIG } from "../constants"
 import { setCookie } from "hono/cookie"
 import { StatusCode } from "hono/utils/http-status"
-import { validateToken, validateUserIdOnCookies } from "../middlewares/auth"
+import { validateUserIdOnCookies } from "../middlewares/auth"
+import { AppError } from "@/lib/errors"
 
 export class AuthModel {
   static signUp = z.object({
@@ -28,34 +28,44 @@ export const authRouter = new Hono()
     const result = await authService.me(userId)
 
     if (result.isErr()) {
-      throw new HTTPException(401, {
+      throw new AppError(401, {
         message: result.error.message,
       })
     }
 
     return c.json(result.value)
   })
-  .get("/verify", validateUserIdOnCookies, validateToken, async (c) => {
-    const userId = c.get("userId")
-    const result = await authService.me(userId)
+  .get("/verify", async (c) => {
+    const token = c.req.header("Authorization")?.replace("Bearer ", "")
 
-    if (result.isErr()) {
-      throw new HTTPException(401, {
-        message: result.error.message,
+    if (!token) {
+      throw new AppError(401, {
+        message: "Token não fornecido",
       })
     }
 
-    return c.json({
-      user: result.value,
-      userId,
-    })
+    const result = await authService.verifyToken(token)
+    if (result.isErr()) {
+      throw new AppError(401, {
+        message: result.error.message,
+      })
+    }
+    const user = await authService.me(String(result.value.userId))
+
+    if (user.isErr()) {
+      throw new AppError(401, {
+        message: user.error.message,
+      })
+    }
+
+    return c.json(user.value)
   })
   .post("/signup", zValidator("json", AuthModel.signUp), async (c) => {
     const data = c.req.valid("json")
     const result = await authService.signUp(data)
 
     if (result.isErr()) {
-      throw new HTTPException(401, {
+      throw new AppError(401, {
         message: result.error.message,
       })
     }
@@ -70,7 +80,7 @@ export const authRouter = new Hono()
     const result = await authService.signIn(data)
 
     if (result.isErr()) {
-      throw new HTTPException(401, {
+      throw new AppError(401, {
         message: result.error.message,
       })
     }

@@ -24,21 +24,3 @@ export const validateUserIdOnCookies = createMiddleware<{
   c.set("userId", userId)
   await next()
 })
-
-export const validateToken = createMiddleware(async (c, next) => {
-  const token = c.req.header("Authorization")?.replace("Bearer ", "")
-
-  if (!token) {
-    c.status(401 as StatusCode)
-    return c.json({ message: "Token não fornecido" })
-  }
-
-  const result = await authService.verifyToken(token)
-
-  if (result.isErr()) {
-    c.status(401 as StatusCode)
-    return c.json({ message: "Token inválido" })
-  }
-
-  await next()
-})

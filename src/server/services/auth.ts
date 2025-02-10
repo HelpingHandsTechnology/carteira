@@ -21,11 +21,11 @@ export type AuthError =
 class AuthService {
   constructor(private db: typeof DbService.db) {}
 
-  verifyToken(token: string): ResultAsync<{ userId: number }, AuthError> {
+  verifyToken(token: string): ResultAsync<{ userId: string }, AuthError> {
     return ResultAsync.fromPromise(
       Promise.resolve().then(() => {
         try {
-          const decoded = jwt.verify(token, JWT_SECRET) as { userId: number }
+          const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
           return decoded
         } catch (error) {
           throw { type: "UNAUTHORIZED" as const, message: "Token inválido" }
@@ -102,7 +102,7 @@ class AuthService {
       }),
       () => ({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to check email",
+        message: "Não foi possível verificar o email",
       })
     )
   }
@@ -111,7 +111,7 @@ class AuthService {
     if (user) {
       return errAsync({
         type: "EMAIL_ALREADY_EXISTS" as const,
-        message: "Email already in use",
+        message: "O email já está em uso",
       })
     }
     return okAsync(undefined)
@@ -127,7 +127,7 @@ class AuthService {
     } catch (error) {
       return err({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to hash password",
+        message: "Email ou senha inválidos",
       })
     }
   }
@@ -149,14 +149,14 @@ class AuthService {
         .returning(),
       () => ({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to create user",
+        message: "Não foi possível criar o usuário",
       })
     ).andThen((users) => {
       const user = users[0]
       if (!user) {
         return errAsync({
           type: "DATABASE_ERROR" as const,
-          message: "Failed to create user",
+          message: "Não foi possível criar o usuário",
         })
       }
       return okAsync(this.mapToUser(user))
@@ -170,13 +170,13 @@ class AuthService {
       }),
       () => ({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to find user",
+        message: "Não foi possível encontrar o usuário",
       })
     ).andThen((user) => {
       if (!user) {
         return errAsync({
           type: "USER_NOT_FOUND" as const,
-          message: "User not found",
+          message: "Email ou senha inválidos",
         })
       }
       return okAsync(user)
@@ -188,7 +188,7 @@ class AuthService {
       if (!isValid) {
         return errAsync({
           type: "INVALID_CREDENTIALS" as const,
-          message: "Invalid password",
+          message: "Email ou senha inválidos",
         })
       }
       return okAsync(user)
@@ -201,7 +201,7 @@ class AuthService {
       if (!salt || !hash) {
         return err({
           type: "INVALID_CREDENTIALS" as const,
-          message: "Invalid password format",
+          message: "Email ou senha inválidos",
         })
       }
 
@@ -212,7 +212,7 @@ class AuthService {
     } catch (error) {
       return err({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to verify password",
+        message: "Email ou senha inválidos",
       })
     }
   }
