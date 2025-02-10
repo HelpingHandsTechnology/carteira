@@ -93,9 +93,8 @@ describe("Auth Router", () => {
 
       expect(res.status).toBe(200)
       const data = await res.json()
-      expect(data.success).toBe(true)
-      expect(data.data.user.email).toBe(testUser.email)
-      expect(data.data.token).toBeDefined()
+      expect(data.user.email).toBe(testUser.email)
+      expect(data.token).toBeDefined()
 
       // Check if cookies are set
       const cookies = res.headers.get("set-cookie")

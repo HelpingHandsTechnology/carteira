@@ -88,10 +88,7 @@ export const authRouter = new Hono()
     setCookie(c, COOKIE_KEYS.userId, String(result.value.user.id), COOKIE_CONFIG)
     setCookie(c, COOKIE_KEYS.token, result.value.token, COOKIE_CONFIG)
 
-    return c.json({
-      success: true,
-      data: result.value,
-    })
+    return c.json(result.value)
   })
   .post("/signout", async (c) => {
     setCookie(c, COOKIE_KEYS.userId, "", { ...COOKIE_CONFIG, maxAge: 0 })
