@@ -1,26 +1,27 @@
-import { createMiddleware } from "hono/factory"
-import { StatusCode } from "hono/utils/http-status"
-import { err } from "neverthrow"
 import { COOKIE_KEYS } from "../constants"
+import { authService } from "../services/auth"
 import { getCookie } from "hono/cookie"
-import { AuthError, authService } from "../services/auth"
+import { createMiddleware } from "hono/factory"
+import { AppError } from "@/lib/errors"
+import { User } from "../db"
 
-export const validateUserIdOnCookies = createMiddleware<{
+export const authMiddleware = createMiddleware<{
   Variables: {
     userId: string
   }
 }>(async (c, next) => {
   const userId = getCookie(c, COOKIE_KEYS.userId)
+  const token = getCookie(c, COOKIE_KEYS.token)
 
-  if (!userId) {
-    const error: AuthError = {
-      type: "UNAUTHORIZED",
-      message: "Desculpe, não foi possível verificar sua identidade. Por favor, tente novamente.",
-    }
-    c.status(401 as StatusCode)
-    return c.json(err(error))
+  if (!userId || !token) {
+    throw new AppError(401, { message: "Usuário não autenticado" })
   }
 
-  c.set("userId", userId)
+  const user = await authService.verifyToken(token)
+  if (user.isErr()) {
+    throw new AppError(401, { message: "Usuário não autenticado" })
+  }
+
+  c.set("userId", user.value.userId)
   await next()
 })

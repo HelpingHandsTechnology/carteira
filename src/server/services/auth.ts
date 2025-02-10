@@ -42,17 +42,19 @@ class AuthService {
       }),
       () => ({
         type: "DATABASE_ERROR" as const,
-        message: "Failed to find user",
+        message: "Não foi possível encontrar o usuário",
       })
-    ).andThen((user) => {
-      if (!user) {
-        return errAsync({
-          type: "UNAUTHORIZED" as const,
-          message: "Unauthorized",
-        })
-      }
-      return okAsync(this.mapToUser(user))
-    })
+    )
+      .andThen((user) => {
+        if (!user) {
+          return errAsync({
+            type: "UNAUTHORIZED" as const,
+            message: "Usuário não encontrado",
+          })
+        }
+        return okAsync(user)
+      })
+      .map(this.mapToUser)
   }
 
   signUp(data: { email: string; password: string; name: string }): ResultAsync<AuthResponse, AuthError> {
@@ -185,7 +187,7 @@ class AuthService {
 
   private validatePassword(user: UserSelect, password: string): ResultAsync<UserSelect, AuthError> {
     return okAsync(this.verifyPassword(user.password, password)).andThen((isValid) => {
-      if (!isValid) {
+      if (isValid.isErr()) {
         return errAsync({
           type: "INVALID_CREDENTIALS" as const,
           message: "Email ou senha inválidos",
@@ -208,7 +210,13 @@ class AuthService {
       const newHash = createHash("sha256")
         .update(salt + password)
         .digest("hex")
-      return ok(hash === newHash)
+      if (hash === newHash) {
+        return ok(true)
+      }
+      return err({
+        type: "INVALID_CREDENTIALS" as const,
+        message: "Email ou senha inválidos",
+      })
     } catch (error) {
       return err({
         type: "DATABASE_ERROR" as const,

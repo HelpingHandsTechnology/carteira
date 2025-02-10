@@ -6,7 +6,7 @@ import { match } from "ts-pattern"
 import { COOKIE_KEYS, COOKIE_CONFIG } from "../constants"
 import { setCookie } from "hono/cookie"
 import { StatusCode } from "hono/utils/http-status"
-import { validateUserIdOnCookies } from "../middlewares/auth"
+import { authMiddleware } from "../middlewares/auth"
 import { AppError } from "@/lib/errors"
 
 export class AuthModel {
@@ -23,7 +23,7 @@ export class AuthModel {
 }
 
 export const authRouter = new Hono()
-  .get("/me", validateUserIdOnCookies, async (c) => {
+  .get("/me", authMiddleware, async (c) => {
     const userId = c.get("userId")
     const result = await authService.me(userId)
 

@@ -8,11 +8,16 @@ import { COOKIE_KEYS } from "../constants"
 import { recreateDatabase } from "../test/utils/database.utils"
 import { hc } from "hono/client"
 import { loggerMiddleware } from "../middlewares/logger"
-import { serve } from "@hono/node-server"
+import { createAdaptorServer } from "@hono/node-server"
 import { app } from "../app"
+
 describe("Auth Router", () => {
-  const rpc = hc<typeof app>("http://localhost:3000")
-  const server = serve(app)
+  const rpc = hc<typeof app>("http://localhost:3002")
+  const server = createAdaptorServer({
+    fetch: app.fetch,
+    port: 3002,
+  })
+
   const testUser = {
     email: "test@example.com",
     password: "password123",
@@ -21,6 +26,7 @@ describe("Auth Router", () => {
 
   beforeAll(async () => {
     await recreateDatabase()
+    server.listen(3002)
   })
 
   afterAll(async () => {
