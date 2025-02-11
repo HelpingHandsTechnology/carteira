@@ -7,7 +7,7 @@ import { TypographyH1, TypographyH2, TypographyP } from "@/components/ui/typogra
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Edit2Icon, Trash2Icon } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -25,13 +25,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-export default function AccountDetailsPage({ params }: { params: { accountId: string } }) {
+export default function AccountDetailsPage() {
+  const params = useParams()
+  const accountId = params.accountId as string
   const router = useRouter()
-  const { data: account, isLoading } = useAccountQuery(params.accountId)
+  const { data: account, isLoading } = useAccountQuery(accountId)
   const deleteAccount = useDeleteAccountMutation()
 
   function handleDelete() {
-    deleteAccount.mutate(params.accountId, {
+    deleteAccount.mutate(accountId, {
       onSuccess: () => {
         toast.success(CONTENT.toast.deleteSuccess)
         router.push("/app")
