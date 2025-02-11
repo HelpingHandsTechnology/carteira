@@ -34,7 +34,7 @@ export default function NewAccountPage() {
       serviceName: "",
       startDate: "",
       expirationDate: "",
-      maxUsers: "",
+      maxUsers: 0,
       price: "",
     },
   })

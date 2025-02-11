@@ -86,6 +86,9 @@ describe("Accounts Router", () => {
       const invalidAccount = {
         serviceName: "",
         maxUsers: 0,
+        startDate: "",
+        expirationDate: "",
+        price: "",
       }
 
       const res = await rpc.api.accounts.$post(
@@ -136,7 +139,7 @@ describe("Accounts Router", () => {
       const data = await res.json()
       expect(Array.isArray(data)).toBe(true)
       expect(data.length).toBeGreaterThan(0)
-      expect(data[0].serviceName).toBe(testAccount.serviceName)
+      expect(data[0]?.serviceName).toBe(testAccount.serviceName)
     })
 
     it("should filter accounts by status", async () => {

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
 import { PlusIcon } from "lucide-react"
 import { Account } from "@/server/db"
+import { Dehydrate } from "@/lib/types"
 
 export function AccountsSection() {
   const router = useRouter()
@@ -42,7 +43,7 @@ export function AccountsSection() {
   )
 }
 
-function AccountCard({ account }: { account: Account }) {
+function AccountCard({ account }: { account: Dehydrate<Account> }) {
   const router = useRouter()
 
   return (
