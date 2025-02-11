@@ -27,6 +27,9 @@ export const useAccountsQuery = (filters?: { status?: AccountStatus }) => {
           status: filters?.status,
         },
       })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
       return res.json()
     },
   })
@@ -37,6 +40,9 @@ export const useAccountQuery = (id: string) => {
     queryKey: queryKeys.detail(id),
     queryFn: async () => {
       const res = await client.api.accounts[":accountId"].$get({ param: { accountId: id } })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
       return res.json()
     },
   })
@@ -48,6 +54,9 @@ export const useCreateAccountMutation = () => {
   return useMutation({
     mutationFn: async (data: AccountData) => {
       const res = await client.api.accounts.$post({ json: data })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
       return res.json()
     },
     onSuccess: () => {
@@ -62,6 +71,9 @@ export const useUpdateAccountMutation = () => {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<AccountData> }) => {
       const res = await client.api.accounts[":accountId"].$patch({ param: { accountId: id }, json: data })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
       return res.json()
     },
     onSuccess: (_, { id }) => {
@@ -77,6 +89,9 @@ export const useDeleteAccountMutation = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       const res = await client.api.accounts[":accountId"].$delete({ param: { accountId: id } })
+      if (!res.ok) {
+        throw new Error(await res.text())
+      }
       return res.json()
     },
     onSuccess: () => {

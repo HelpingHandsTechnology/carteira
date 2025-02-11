@@ -7,6 +7,9 @@ export const useUser = () => {
     queryKey: ["auth", "user"],
     queryFn: async () => {
       const resp = await client.api.auth.me.$get()
+      if (!resp.ok) {
+        throw new Error(await resp.text())
+      }
       return await resp.json()
     },
   })
@@ -32,6 +35,10 @@ export const useSignInMutation = () => {
       const resp = await client.api.auth.signin.$post({
         json: data,
       })
+
+      if (!resp.ok) {
+        throw new Error(await resp.text())
+      }
 
       return resp.json()
     },
@@ -59,6 +66,10 @@ export const useSignUpMutation = () => {
         json: data,
       })
 
+      if (!resp.ok) {
+        throw new Error(await resp.text())
+      }
+
       return resp.json()
     },
   })
@@ -82,6 +93,9 @@ export const useLogoutMutation = () => {
   return useMutation({
     mutationFn: async () => {
       const resp = await client.api.auth.signout.$post()
+      if (!resp.ok) {
+        throw new Error(await resp.text())
+      }
       return resp.json()
     },
   })
