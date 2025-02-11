@@ -36,7 +36,7 @@ export function Pricing({ className }: PricingProps) {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="flex items-baseline gap-2"
             >
-              <TypographyH2 className="text-sm md:text-5xl tracking-tighter font-regular">
+              <TypographyH2 className="text-5xl tracking-tighter font-regular">
                 100% Grátis{" "}
                 <span className="text-sm md:text-sm tracking-tighter font-regular">
                   (E Sem Letrinha Miúda Pra Te Pegar)! 🎉
@@ -111,7 +111,11 @@ function FeatureItem({ title, description, badge }: { title: string; description
       <div className="flex flex-col">
         <div className="flex flex-row gap-2">
           <TypographyP>{title}</TypographyP>
-          {badge && <Badge className="text-sm text-primary-foreground h-4 opacity-40 self-center">{badge}</Badge>}
+          {badge && (
+            <Badge className=" text-xs sm:text-sm text-primary-foreground h-4 opacity-40 self-center whitespace-nowrap">
+              {badge}
+            </Badge>
+          )}
         </div>
         <TypographySmall className="text-muted-foreground text-sm">{description}</TypographySmall>
       </div>

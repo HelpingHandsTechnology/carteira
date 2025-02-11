@@ -18,7 +18,7 @@ export function PartnersSection({ className }: PartnersSectionProps) {
           <GradientHeading size="xl">{CONTENT.title.secondary}</GradientHeading>
           <Typewriter className={cn(headingVariants({ size: "xl" }))} text={CONTENT.typewriter} />
         </div>
-        <LogoCarousel logos={partners} columnCount={4} />
+        <LogoCarousel logos={partners} columnCount={isMobile ? 3 : 4} />
       </div>
     </section>
   )
