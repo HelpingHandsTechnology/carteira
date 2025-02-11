@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypographyH1 } from "@/components/ui/typography"
 import { cn } from "@/lib/utils"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,9 +25,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function EditAccountPage({ params }: { params: { accountId: string } }) {
+export default function EditAccountPage() {
   const router = useRouter()
-  const { data: account, isLoading } = useAccountQuery(params.accountId)
+  const params = useParams()
+  const accountId = params.accountId as string
+  const { data: account, isLoading } = useAccountQuery(accountId)
   const updateAccount = useUpdateAccountMutation()
 
   const form = useForm<FormValues>({
@@ -43,11 +45,11 @@ export default function EditAccountPage({ params }: { params: { accountId: strin
 
   function onSubmit(data: FormValues) {
     updateAccount.mutate(
-      { id: params.accountId, data },
+      { id: accountId, data },
       {
         onSuccess: () => {
           toast.success(CONTENT.toast.success)
-          router.push(`/app/accounts/${params.accountId}`)
+          router.push(`/app/accounts/${accountId}`)
         },
       }
     )
