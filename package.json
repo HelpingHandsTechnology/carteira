@@ -11,6 +11,8 @@
     "dev": "dotenv -e .env -- next dev",
     "dev:server": "dotenv -e .env -- tsx watch src/server/index.ts",
     "lint": "next lint",
+    "e2e": "NODE_ENV=test dotenv -e .env -- playwright test",
+    "e2e:ui": "NODE_ENV=test dotenv -e .env -- playwright test --ui",
     "start": "next start",
     "start:server": "dotenv -e .env -- tsx src/server/index.ts"
   },
@@ -20,6 +22,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@oslojs/crypto": "^1.0.1",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@playwright/test": "^1.50.1",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.2",

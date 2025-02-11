@@ -12,6 +12,8 @@
 # next.js
 /.next/
 /out/
+playwright-report/
+.last-run.json
 
 # production
 /build

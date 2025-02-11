@@ -1,8 +1,9 @@
-import { $ } from "bun"
 import { drizzle } from "drizzle-orm/node-postgres"
-import { migrate } from "drizzle-orm/node-postgres/migrator"
-import path from "path"
 import { Pool } from "pg"
+import { exec } from "child_process"
+import { promisify } from "util"
+
+const execAsync = promisify(exec)
 
 export async function recreateDatabase() {
   const connectionString = process.env.TEST_DATABASE_URL
@@ -15,7 +16,9 @@ export async function recreateDatabase() {
     await db.execute("DROP SCHEMA IF EXISTS public CASCADE;")
     await db.execute("DROP SCHEMA IF EXISTS drizzle CASCADE;")
     await db.execute("CREATE SCHEMA public;")
-    await $`bunx drizzle-kit push --url=${connectionString} --dialect=postgresql --schema=./src/server/db/schema.ts`
+    await execAsync(
+      `npx drizzle-kit push --url=${connectionString} --dialect=postgresql --schema=./src/server/db/schema.ts`
+    )
   } finally {
     await db.$client.end()
   }
