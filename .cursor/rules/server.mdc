@@ -2,40 +2,45 @@
 description: server guidelines
 globs: src/server/**/*.ts
 ---
-# Elysia Development Guidelines
+# Hono Development Guidelines
 
 
 ## Dependency injection
 
-- For routes the services should come via `decorate` instead to be used directly in the body of the function
-- Same for the database
+- Para rotas, os serviços devem ser injetados via context
+- O mesmo para o banco de dados
+- Use `c.get()` para acessar serviços injetados
 
 
 ## Core Principles
 
 - Use English for all code and documentation
-- Leverage end-to-end type safety with Eden Treaty
+- Leverage end-to-end type safety with Hono types
 - Follow RESTful conventions for API routes
-- Implement modular architecture with Elysia plugins
+- Implement modular architecture with Hono middleware
 
-## Elysia Server Guidelines
+## Server Guidelines
 
 ### Basic Structure
 
-- Create modular routers using Elysia plugins
+- Create modular routers using Hono routes
 - Use prefix for API versioning and grouping
-- Implement proper error handling with onError hooks
-- Configure server settings via Elysia constructor
+- Implement proper error handling with error middleware
+- Configure server settings via Hono constructor
 
 ```typescript
-import { Elysia } from 'elysia'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 
-const app = new Elysia({ prefix: '/api' })
-  .use(userRouter) 
-  .use(postRouter)
-  .onError(({ error, set }) => {
-    set.status = 500
-    return { error: error.message }
+const app = new Hono()
+  .basePath('/api')
+  .use('*', cors())
+  .route('/users', userRouter)
+  .route('/posts', postRouter)
+  .onError((err, c) => {
+    return c.json({ 
+      error: err.message 
+    }, 500)
   })
 ```
 
@@ -52,7 +57,7 @@ const app = new Elysia({ prefix: '/api' })
 ### Route Handlers
 
 - Use descriptive route names in plural form
-- Implement proper request validation using Elysia's type system
+- Implement proper request validation using Zod
 - Return structured responses with proper status codes
 - Document routes with OpenAPI/Swagger annotations
 
@@ -60,18 +65,22 @@ const app = new Elysia({ prefix: '/api' })
 
 - Create a Model class for each resource to handle validation and types
 - Models should always be defined in the same file as their corresponding router
-- Use static properties for schema definitions
+- Use Zod for schema definitions
 - Reuse validation schemas across routes
 - Keep validation logic centralized
 
 ```typescript
+import { z } from 'zod'
+import { Hono } from 'hono'
+import { zValidator } from '@hono/zod-validator'
+
 export class PostModel {
-  static id = t.Object({
-    id: t.String()
+  static id = z.object({
+    id: z.string()
   })
 
-  static create = t.Object({
-    name: t.String({ minLength: 1 })
+  static create = z.object({
+    name: z.string().min(1)
   })
 
   static update = {
@@ -84,48 +93,51 @@ export class PostModel {
   }
 }
 
-export const postRouter = new Elysia({ prefix: '/posts' })
-  .decorate('postService', new PostService(DbService.db))
-  .post('', async ({ body, postService }) => {
+export const postRouter = new Hono()
+  .post('/', zValidator('js', PostModel.create), async (c) => {
+    const postService = c.get('postService')
+    const body = c.req.valid('json')
     const post = await postService.create(body)
-    return post
-  }, {
-    body: PostModel.create
+    return c.json(post)
   })
 ```
 
-## Eden Treaty Guidelines
+## API Guidelines
 
 ### Client Setup
 
-- Export server type for end-to-end type safety([2](mdc:https:/elysiajs.com/eden/treaty/overview.html))
-- Configure Eden Treaty with proper base URL
-- Implement error handling for API responses
+- Export server type for end-to-end type safety
+- Configure client with proper base URL
+- Implement error handli for API responses
 - Use proper TypeScript types for request/response
 
 ```typescript
-import { treaty } from '@elysiajs/eden'
-import type { App } from './server'
+import { hc } from 'hono/client'
+import type { AppType } from './server'
 
-const api = treaty<App>('http://localhost:3000')
+const api = hc<AppType>('http://localhost:3000')
 ```
 
 ### API Consumption
 
-- Use tree-like syntax for route access([3](mdc:https:/elysiajs.com/eden/treaty/overview.html))
+- Use proper HTTP methods
 - Handle responses with proper error checking
 - Implement proper TypeScript types
-- Use proper HTTP methods
+- Use proper error handling
 
 ```typescript
 // GET /api/posts
-const { data, error } = await api.posts.get()
+const res = await api.api.posts.$get()
+const data = await res.json()
 
 // POST /api/posts
-const { data, error } = await api.posts.post({
-  title: 'Hello',
-  content: 'World'
+const res = await api.api.posts.$post({
+  json: {
+    title: 'Hello',
+    content: 'World'
+  }
 })
+const data = await res.json()
 ```
 
 ## Essential Patterns
@@ -139,7 +151,8 @@ const { data, error } = await api.posts.post({
 
 ### Error Handling
 
-- Use `gots` for all error handling in the application
+- Use `@gots` for all error handling in the application
+- Never use try/catch directly, always wrap in AppResult
 - Return structured error responses
 - Log errors appropriately
 
@@ -152,21 +165,21 @@ export type AuthError =
   | { type: 'USER_NOT_FOUND' }
   | { type: 'EMAIL_ALREADY_EXISTS' }
 
-// Use Result for synchronous operations
-import { Result, ok, err } from 'neverthrow'
+// Use AppResult for operations
+import { AppResult, ok, err } from '@/lib/gots'
 
-function validatePassword(password: string): Result<string, AuthError> {
+function validatePassword(password: string): AppResult<string, AuthError> {
   if (password.length < 6) {
     return err({ type: 'INVALID_CREDENTIALS' })
   }
   return ok(password)
 }
 
-// Use ResultAsync for asynchronous operations
-import { ResultAsync } from 'neverthrow'
+// Use fromPromise for asynchronous operations
+import { fromPromise } from '@/lib/gots'
 
-function findUser(email: string): ResultAsync<User, AuthError> {
-  return ResultAsync.fromPromise(
+async function findUser(email: string): Promise<AppResult<User, AuthError>> {
+  return fromPromise(
     db.users.findUnique({ where: { email } }),
     () => ({ type: 'USER_NOT_FOUND' })
   )
@@ -175,38 +188,45 @@ function findUser(email: string): ResultAsync<User, AuthError> {
 
 #### Error Handling Patterns
 
-1. Chain Operations with `andThen`:
+1. Chain Operations with Promise chaining:
 ```typescript
-const signupUser = (data: SignupData): ResultAsync<User, AuthError> => {
-  return validateUser(data)
-    .andThen(createUser)
-    .andThen(sendWelcomeEmail)
+const signupUser = async (data: SignupData): Promise<AppResult<User, AuthError>> => {
+  const [validatedUser, validationError] = await validateUser(data)
+  if (validationError) return err(validationError)
+  
+  const [user, createError] = await createUser(validatedUser)
+  if (createError) return err(createError)
+  
+  const [_, emailError] = await sendWelcomeEmail(user)
+  if (emailError) return err(emailError)
+  
+  return ok(user)
 }
 ```
 
-2. Transform Errors with `mapErr`:
+2. Transform Errors:
 ```typescript
-const result = await findUser(email)
-  .mapErr((error): ApiError => ({
+const [user, error] = await findUser(email)
+if (error) {
+  return err({
     code: 'AUTH_ERROR',
     message: getErrorMessage(error)
-  }))
+  })
+}
 ```
 
-3. Combine Multiple Results:
+3. Handle Multiple Results:
 ```typescript
-const results = await ResultAsync.combine([
-  validateEmail(email),
-  validatePassword(password),
-  checkUserExists(email)
-])
-```
+const [emailValidation, emailError] = await validateEmail(email)
+if (emailError) return err(emailError)
 
-4. Handle Side Effects with `andTee`:
-```typescript
-const result = await createUser(data)
-  .andTee(logUserCreation)
-  .andThen(sendWelcomeEmail)
+const [passwordValidation, passwordError] = await validatePassword(password)
+if (passwordError) return err(passwordError)
+
+const [userExists, userError] = await checkUserExists(email)
+if (userError) return err(userError)
+
+return ok({ email: emailValidation, password: passwordValidation, exists: userExists })
 ```
 
 #### Response Structure
@@ -233,10 +253,10 @@ All API responses should follow this structure:
 #### Best Practices
 
 1. Always define specific error types for each domain
-2. Use `ResultAsync.fromPromise` for database operations
-3. Chain operations using `andThen` instead of try/catch
-4. Transform low-level errors to domain errors using `mapErr`
-5. Use `combine` when dealing with multiple Results
+2. Use `fromPromise` for database operations
+3. Use proper error handling with AppResult type
+4. Transform low-level errors to domain errors
+5. Handle errors early in the call chain
 6. Log errors at the edge of the system
 7. Never expose internal errors to clients
 8. Document all possible error types in function signatures
@@ -244,25 +264,25 @@ All API responses should follow this structure:
 ### Testing
 
 - Write unit tests for route handlers
-- Test API endpoints with Eden Treaty
+- Test API endpoints with Hono client
 - Implement proper test fixtures
 - Follow AAA pattern (Arrange-Act-Assert)
 
 ```typescript
 import { describe, expect, it } from 'bun:test'
-import { treaty } from '@elysiajs/eden'
 import { app } from './server'
-
-const api = treaty(app)
 
 describe('Posts API', () => {
   it('should create a post', async () => {
-    const { data, error } = await api.posts.post({
-      title: 'Test',
-      content: 'Content'
+    const res = await app.api.posts.$post({
+      json: {
+        title: 'Test',
+        content: 'Content'
+      }
     })
+    const data = await res.json()
     
-    expect(error).toBeNull()
+    expect(res.status).toBe(200)
     expect(data.title).toBe('Test')
   })
 })
@@ -271,9 +291,9 @@ describe('Posts API', () => {
 ## Best Practices
 
 - Use proper TypeScript types everywhere
-- Implement proper validation for all inputs
+- Implement proper validation for all inputs using Zod
 - Follow REST conventions for API design
-- Use proper error handling
+- Use proper error handling with @gots
 - Write comprehensive tests
 - Document your API properly
 - Use proper logging
@@ -319,38 +339,37 @@ bun run drizzle-kit push
 - Implement proper indexes for performance
 - Follow naming conventions consistently
 
-### Functional Programming with neverthrow
-- Use `.map` instead of `.andThen` for simple transformations
-- Only use `.andThen` when you need to chain async operations or handle errors
-- Keep transformations pure and side-effect free
-- Avoid unnecessary wrapping of values in Result/ResultAsync
-- Use `okAsync` and `errAsync` instead of `Promise.resolve/reject`
+### Functional Programming with @gots
+- Use desestruturação para acessar os valores e erros: `const [data, error] = result`
+- Mantenha as transformações puras e livres de efeitos colaterais
+- Evite envolver valores desnecessariamente em AppResult
+- Use `fromPromise` para operações assíncronas
+- Sempre trate os erros o mais cedo possível na cadeia de chamadas
 
 ```typescript
-// ❌ Don't use Promise.resolve/reject
-return ResultAsync.fromPromise(
+// ❌ Não use Promise.resolve/reject diretamente
+return fromPromise(
   Promise.resolve(value),
   () => ({ type: "ERROR" })
 )
 
-// ✅ Use okAsync/errAsync
-return okAsync(value)
+// ✅ Use ok/err
+return ok(value)
 
-// ❌ Don't use Promise.reject with ResultAsync.fromPromise
-return ResultAsync.fromPromise<never, AuthError>(
+// ❌ Não use Promise.reject com fromPromise
+return fromPromise<never, AuthError>(
   Promise.reject({ type: "NOT_FOUND" }),
   (e) => e as AuthError
 )
 
-// ✅ Use errAsync directly
-return errAsync({ type: "NOT_FOUND" })
+// ✅ Use err diretamente
+return err({ type: "NOT_FOUND" })
 
-// ❌ Unnecessary Promise wrapping
-return ResultAsync.fromPromise(
+// ❌ Envolvimento desnecessário em Promise
+return fromPromise(
   Promise.resolve(this.mapToUser(user)),
   () => ({ type: "ERROR" })
 )
 
-// ✅ Direct value wrapping
-return okAsync(this.mapToUser(user))
-```
+// ✅ Envolvimento direto do valor
+return ok(this.mapToUser(user))
