@@ -139,8 +139,7 @@ const { data, error } = await api.posts.post({
 
 ### Error Handling
 
-- Use `neverthrow` for all error handling in the application
-- Never use try/catch directly, always wrap in Result
+- Use `gots` for all error handling in the application
 - Return structured error responses
 - Log errors appropriately
 
