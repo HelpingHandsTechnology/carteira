@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm"
 import { DbService } from "./db"
 import { createHash, randomBytes } from "node:crypto"
-import { Result, ResultAsync, err, ok, okAsync, errAsync } from "neverthrow"
 import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "../constants"
 import { User, UserSelect } from "../db"
+import { AppResult, err, fromPromise, ok } from "@/lib/gots"
 
 export type AuthResponse = {
   user: User
@@ -21,107 +21,119 @@ export type AuthError =
 class AuthService {
   constructor(private db: typeof DbService.db) {}
 
-  verifyToken(token: string): ResultAsync<{ userId: string }, AuthError> {
-    return ResultAsync.fromPromise(
+  async verifyToken(token: string): Promise<AppResult<{ userId: string }, AuthError>> {
+    return fromPromise(
       Promise.resolve().then(() => {
-        try {
-          const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
-          return decoded
-        } catch (error) {
-          throw { type: "UNAUTHORIZED" as const, message: "Token inválido" }
-        }
+        const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
+        return decoded
       }),
-      (error) => error as AuthError
+      (): AuthError => ({ type: "UNAUTHORIZED", message: "Token inválido" })
     )
   }
 
-  me(userId: User["id"]): ResultAsync<User, AuthError> {
-    return ResultAsync.fromPromise(
+  async me(userId: User["id"]): Promise<AppResult<User, AuthError>> {
+    const [user, userError] = await fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.id, userId),
       }),
-      () => ({
-        type: "DATABASE_ERROR" as const,
+      (): AuthError => ({
+        type: "DATABASE_ERROR",
         message: "Não foi possível encontrar o usuário",
       })
     )
-      .andThen((user) => {
-        if (!user) {
-          return errAsync({
-            type: "UNAUTHORIZED" as const,
-            message: "Usuário não encontrado",
-          })
-        }
-        return okAsync(user)
-      })
-      .map(this.mapToUser)
+
+    if (userError) {
+      return err(userError)
+    }
+
+    if (!user) {
+      return err({
+        type: "UNAUTHORIZED",
+        message: "Usuário não encontrado",
+      } as const)
+    }
+
+    return ok(this.mapToUser(user))
   }
 
-  signUp(data: { email: string; password: string; name: string }): ResultAsync<AuthResponse, AuthError> {
-    return this.checkExistingUser(data.email)
-      .andThen(this.validateNewUser)
-      .andThen(() =>
-        ResultAsync.fromPromise(
-          Promise.resolve(
-            this.hashPassword(data.password).match(
-              (value) => value,
-              (error) => Promise.reject(error)
-            )
-          ),
-          (e) => e as AuthError
-        )
-      )
-      .andThen((hashedPassword) =>
-        this.createUser({
-          ...data,
-          hashedPassword,
-        })
-      )
-      .map((user) => ({
-        user,
-        token: this.generateToken(user),
-      }))
+  async signUp(data: { email: string; password: string; name: string }): Promise<AppResult<AuthResponse, AuthError>> {
+    const [existingUser, existingUserError] = await this.checkExistingUser(data.email)
+    if (existingUserError) {
+      return err(existingUserError)
+    }
+
+    if (existingUser) {
+      return err({
+        type: "EMAIL_ALREADY_EXISTS",
+        message: "O email já está em uso",
+      } as const)
+    }
+
+    const [hashedPassword, hashError] = this.hashPassword(data.password)
+    if (hashError) {
+      return err(hashError)
+    }
+
+    const [user, createError] = await this.createUser({
+      ...data,
+      hashedPassword,
+    })
+
+    if (createError) {
+      return err(createError)
+    }
+
+    return ok({
+      user,
+      token: this.generateToken(user),
+    })
   }
 
-  signIn(data: { email: string; password: string }): ResultAsync<AuthResponse, AuthError> {
-    return this.findUserByEmail(data.email)
-      .andThen((user) => this.validatePassword(user, data.password))
-      .map(this.mapToUser)
-      .map((user) => ({
-        user,
-        token: this.generateToken(user),
-      }))
+  async signIn(data: { email: string; password: string }): Promise<AppResult<AuthResponse, AuthError>> {
+    const [user, userError] = await this.findUserByEmail(data.email)
+    if (userError) {
+      return err(userError)
+    }
+
+    const [isValid, validationError] = this.verifyPassword(user.password, data.password)
+    if (validationError) {
+      return err({
+        type: "INVALID_CREDENTIALS",
+        message: "Email ou senha inválidos",
+      } as const)
+    }
+
+    if (!isValid) {
+      return err({
+        type: "INVALID_CREDENTIALS",
+        message: "Email ou senha inválidos",
+      } as const)
+    }
+
+    const mappedUser = this.mapToUser(user)
+    return ok({
+      user: mappedUser,
+      token: this.generateToken(mappedUser),
+    })
   }
 
   private generateToken(user: User): string {
     return jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "7d" })
   }
 
-  private checkExistingUser(email: string): ResultAsync<UserSelect | undefined, AuthError> {
-    return ResultAsync.fromPromise(
+  private async checkExistingUser(email: string): Promise<AppResult<UserSelect | undefined, AuthError>> {
+    return fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      (error) => {
-        return {
-          type: "DATABASE_ERROR" as const,
-          message: "Não foi possível verificar o email",
-        }
-      }
+      (): AuthError => ({
+        type: "DATABASE_ERROR",
+        message: "Não foi possível verificar o email",
+      })
     )
   }
 
-  private validateNewUser(user: UserSelect | undefined): ResultAsync<void, AuthError> {
-    if (user) {
-      return errAsync({
-        type: "EMAIL_ALREADY_EXISTS" as const,
-        message: "O email já está em uso",
-      })
-    }
-    return okAsync(undefined)
-  }
-
-  private hashPassword(password: string): Result<string, AuthError> {
+  private hashPassword(password: string): AppResult<string, AuthError> {
     try {
       const salt = randomBytes(16).toString("hex")
       const hash = createHash("sha256")
@@ -130,19 +142,19 @@ class AuthService {
       return ok(`${salt}:${hash}`)
     } catch (error) {
       return err({
-        type: "DATABASE_ERROR" as const,
+        type: "DATABASE_ERROR",
         message: "Email ou senha inválidos",
-      })
+      } as const)
     }
   }
 
-  private createUser(data: {
+  private async createUser(data: {
     email: string
     password: string
     name: string
     hashedPassword: string
-  }): ResultAsync<User, AuthError> {
-    return ResultAsync.fromPromise(
+  }): Promise<AppResult<User, AuthError>> {
+    const [users, createError] = await fromPromise(
       this.db
         .insert(User)
         .values({
@@ -151,81 +163,72 @@ class AuthService {
           name: data.name,
         })
         .returning(),
-      () => ({
-        type: "DATABASE_ERROR" as const,
+      (): AuthError => ({
+        type: "DATABASE_ERROR",
         message: "Não foi possível criar o usuário",
       })
-    ).andThen((users) => {
-      const user = users[0]
-      if (!user) {
-        return errAsync({
-          type: "DATABASE_ERROR" as const,
-          message: "Não foi possível criar o usuário",
-        })
-      }
-      return okAsync(this.mapToUser(user))
-    })
+    )
+
+    if (createError) {
+      return err(createError)
+    }
+
+    const user = users[0]
+    if (!user) {
+      return err({
+        type: "DATABASE_ERROR",
+        message: "Não foi possível criar o usuário",
+      } as const)
+    }
+
+    return ok(this.mapToUser(user))
   }
 
-  private findUserByEmail(email: string): ResultAsync<UserSelect, AuthError> {
-    return ResultAsync.fromPromise(
+  private async findUserByEmail(email: string): Promise<AppResult<UserSelect, AuthError>> {
+    const [user, error] = await fromPromise(
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      (error) => {
-        return {
-          type: "DATABASE_ERROR" as const,
-          message: "Não foi possível encontrar o usuário",
-        }
-      }
-    ).andThen((user) => {
-      if (!user) {
-        return errAsync({
-          type: "USER_NOT_FOUND" as const,
-          message: "Email ou senha inválidos",
-        })
-      }
-      return okAsync(user)
-    })
+      (): AuthError => ({
+        type: "DATABASE_ERROR",
+        message: "Não foi possível encontrar o usuário",
+      })
+    )
+
+    if (error) {
+      return err(error)
+    }
+
+    if (!user) {
+      return err({
+        type: "USER_NOT_FOUND",
+        message: "Email ou senha inválidos",
+      } as const)
+    }
+
+    return ok(user)
   }
 
-  private validatePassword(user: UserSelect, password: string): ResultAsync<UserSelect, AuthError> {
-    return okAsync(this.verifyPassword(user.password, password)).andThen((isValid) => {
-      if (isValid.isErr()) {
-        return errAsync({
-          type: "INVALID_CREDENTIALS" as const,
-          message: "Email ou senha inválidos",
-        })
-      }
-      return okAsync(user)
-    })
-  }
-
-  private verifyPassword(storedHash: string, password: string): Result<boolean, AuthError> {
+  private verifyPassword(storedHash: string, password: string): AppResult<boolean, AuthError> {
     try {
       const [salt, hash] = storedHash.split(":")
       if (!salt || !hash) {
         return err({
-          type: "INVALID_CREDENTIALS" as const,
+          type: "INVALID_CREDENTIALS",
           message: "Email ou senha inválidos",
-        })
+        } as const)
       }
 
       const newHash = createHash("sha256")
         .update(salt + password)
         .digest("hex")
-      if (hash === newHash) {
-        return ok(true)
-      }
-      return err({
-        type: "INVALID_CREDENTIALS" as const,
-        message: "Email ou senha inválidos",
-      })
+
+      return ok(hash === newHash)
     } catch (error) {
       return err({
-        type: "DATABASE_ERROR" as const,
+        type: "DATABASE_ERROR",
         message: "Email ou senha inválidos",
-      })
+      } as const)
     }
   }
 

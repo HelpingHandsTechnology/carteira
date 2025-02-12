@@ -17,11 +17,11 @@ export const authMiddleware = createMiddleware<{
     throw new AppError(401, { message: "Usuário não autenticado" })
   }
 
-  const user = await authService.verifyToken(token)
-  if (user.isErr()) {
+  const [user, error] = await authService.verifyToken(token)
+  if (error) {
     throw new AppError(401, { message: "Usuário não autenticado" })
   }
 
-  c.set("userId", user.value.userId)
+  c.set("userId", user.userId)
   await next()
 })
