@@ -6,7 +6,7 @@ import { env } from "@/lib/env"
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
 })
-
+console.log({allServerEnv: env})
 export const _db = drizzle(pool, { schema })
 
 export * from "./schema"

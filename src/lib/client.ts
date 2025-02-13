@@ -3,4 +3,4 @@ import { hc } from "hono/client"
 import { env } from "./env"
 
 export const client = hc<AppType>(env.NEXT_PUBLIC_API_URL ?? '')
-console.log({ClientEnv: env})
+console.log({allClientEnv: env})
