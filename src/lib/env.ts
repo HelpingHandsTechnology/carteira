@@ -1,7 +1,5 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
- 
-console.log(process.env)
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
@@ -12,10 +10,10 @@ export const env = createEnv({
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "PUBLIC_",
+  clientPrefix: "NEXT_PUBLIC_",
  
   client: {
-    PUBLIC_URL: z.string().url().default(process.env.URL ?? '').optional(),
+    NEXT_PUBLIC_URL: z.string().url().default(process.env.URL ?? '').optional(),
     },
   
   /**
