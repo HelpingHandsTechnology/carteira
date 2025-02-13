@@ -1,10 +1,10 @@
+import { AppResult, err, fromPromise, ok } from "@/lib/gots"
 import { eq } from "drizzle-orm"
-import { DbService } from "./db"
-import { createHash, randomBytes } from "node:crypto"
 import jwt from "jsonwebtoken"
+import { createHash, randomBytes } from "node:crypto"
 import { JWT_SECRET } from "../constants"
 import { User, UserSelect } from "../db"
-import { AppResult, err, fromPromise, ok } from "@/lib/gots"
+import { DbService } from "./db"
 
 export type AuthResponse = {
   user: User
@@ -12,16 +12,16 @@ export type AuthResponse = {
 }
 
 export type AuthError =
-  | { type: "INVALID_CREDENTIALS"; message: string }
-  | { type: "USER_NOT_FOUND"; message: string }
-  | { type: "EMAIL_ALREADY_EXISTS"; message: string }
-  | { type: "DATABASE_ERROR"; message: string }
-  | { type: "UNAUTHORIZED"; message: string }
+  | { type: "INVALID_CREDENTIALS"; message: string; cause?: unknown }
+  | { type: "USER_NOT_FOUND"; message: string; cause?: unknown }
+  | { type: "EMAIL_ALREADY_EXISTS"; message: string; cause?: unknown }
+  | { type: "DATABASE_ERROR"; message: string; cause?: unknown }
+  | { type: "UNAUTHORIZED"; message: string; cause?: unknown }
 
-class AuthService {
+export class AuthService {
   constructor(private db: typeof DbService.db) {}
 
-  async verifyToken(token: string): Promise<AppResult<{ userId: string }, AuthError>> {
+  static async verifyToken(token: string): Promise<AppResult<{ userId: string }, AuthError>> {
     return fromPromise(
       Promise.resolve().then(() => {
         const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
@@ -32,19 +32,9 @@ class AuthService {
   }
 
   async me(userId: User["id"]): Promise<AppResult<User, AuthError>> {
-    const [user, userError] = await fromPromise(
-      this.db.query.User.findFirst({
-        where: eq(User.id, userId),
-      }),
-      (): AuthError => ({
-        type: "DATABASE_ERROR",
-        message: "Não foi possível encontrar o usuário",
-      })
-    )
-
-    if (userError) {
-      return err(userError)
-    }
+    const user = await this.db.query.User.findFirst({
+      where: eq(User.id, userId),
+    })
 
     if (!user) {
       return err({
@@ -58,6 +48,7 @@ class AuthService {
 
   async signUp(data: { email: string; password: string; name: string }): Promise<AppResult<AuthResponse, AuthError>> {
     const [existingUser, existingUserError] = await this.checkExistingUser(data.email)
+
     if (existingUserError) {
       return err(existingUserError)
     }
@@ -126,9 +117,10 @@ class AuthService {
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      (): AuthError => ({
+      (error): AuthError => ({
         type: "DATABASE_ERROR",
         message: "Não foi possível verificar o email",
+        cause: error,
       })
     )
   }
@@ -189,9 +181,10 @@ class AuthService {
       this.db.query.User.findFirst({
         where: eq(User.email, email),
       }),
-      (): AuthError => ({
+      (error): AuthError => ({
         type: "DATABASE_ERROR",
         message: "Não foi possível encontrar o usuário",
+        cause: error,
       })
     )
 
@@ -240,5 +233,3 @@ class AuthService {
     }
   }
 }
-
-export const authService = new AuthService(DbService.db)

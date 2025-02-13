@@ -1,47 +1,14 @@
-import { describe, expect, it, beforeAll, afterAll, beforeEach } from "bun:test"
-import { Hono } from "hono"
-import { authRouter } from "./auth-router"
-import { _db } from "../db"
-import { User } from "../db/schema"
-import { eq } from "drizzle-orm"
 import { COOKIE_KEYS } from "../constants"
-import { recreateDatabase } from "../test/utils/database.utils"
-import { hc } from "hono/client"
-import { loggerMiddleware } from "../middlewares/logger"
-import { createAdaptorServer } from "@hono/node-server"
-import { app } from "../app"
+import { cleanupServers, createApp, Rpc } from "../test/utils/app.utils"
 
 describe("Auth Router", () => {
-  const rpc = hc<typeof app>("http://localhost:3002")
-  const server = createAdaptorServer({
-    fetch: app.fetch,
-    port: 3002,
-  })
-
-  const testUser = {
-    email: "test@example.com",
-    password: "password123",
-    name: "Test User",
-  }
-
-  beforeAll(async () => {
-    await recreateDatabase()
-    server.listen(3002)
-  })
-
   afterAll(async () => {
-    // Clean up database after all tests
-    await _db.delete(User).execute()
-    server.close()
-  })
-
-  beforeEach(async () => {
-    // Clean up database before each test
-    await _db.delete(User).execute()
+    cleanupServers()
   })
 
   describe("POST /auth/signup", () => {
     it("should create a new user successfully", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signup.$post({
         json: testUser,
       })
@@ -59,6 +26,7 @@ describe("Auth Router", () => {
     })
 
     it("should return error for invalid email", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signup.$post({
         json: { ...testUser, email: "invalid-email" },
       })
@@ -67,6 +35,7 @@ describe("Auth Router", () => {
     })
 
     it("should return error for short password", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signup.$post({
         json: { ...testUser, password: "123" },
       })
@@ -76,14 +45,24 @@ describe("Auth Router", () => {
   })
 
   describe("POST /auth/signin", () => {
-    beforeEach(async () => {
-      // Create a test user before each signin test
-      await rpc.api.auth.signup.$post({
+    const createUser = async (rpc: Rpc) => {
+      const res = await rpc.api.auth.signup.$post({
         json: testUser,
       })
-    })
+      expect(res.status).toBe(200)
+      expect(res.json()).resolves.toEqual({
+        user: expect.objectContaining({
+          email: testUser.email,
+          name: testUser.name,
+        }),
+        token: expect.any(String),
+      })
+      return res
+    }
 
     it("should sign in successfully with correct credentials", async () => {
+      const rpc = await createApp()
+      await createUser(rpc)
       const res = await rpc.api.auth.signin.$post({
         json: {
           email: testUser.email,
@@ -103,6 +82,7 @@ describe("Auth Router", () => {
     })
 
     it("should return error for incorrect password", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signin.$post({
         json: {
           email: testUser.email,
@@ -114,6 +94,7 @@ describe("Auth Router", () => {
     })
 
     it("should return error for non-existent user", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signin.$post({
         json: {
           email: "nonexistent@example.com",
@@ -126,20 +107,9 @@ describe("Auth Router", () => {
   })
 
   describe("GET /auth/me", () => {
-    let userId: string
-    let token: string
-
-    beforeEach(async () => {
-      // Create and sign in a user before each test
-      const signupRes = await rpc.api.auth.signup.$post({
-        json: testUser,
-      })
-      const signupData = await signupRes.json()
-      userId = signupData.user.id
-      token = signupData.token
-    })
-
     it("should return user data for authenticated user", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
       const res = await rpc.api.auth.me.$get(
         {},
         {
@@ -156,6 +126,7 @@ describe("Auth Router", () => {
     })
 
     it("should return error for unauthenticated request", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.me.$get()
 
       expect(res.status).toBe(401)
@@ -164,6 +135,7 @@ describe("Auth Router", () => {
 
   describe("POST /auth/signout", () => {
     it("should clear auth cookies", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.auth.signout.$post()
 
       expect(res.status).toBe(200)
@@ -174,19 +146,9 @@ describe("Auth Router", () => {
   })
 
   describe("GET /auth/verify", () => {
-    let userId: string
-    let token: string
-
-    beforeEach(async () => {
-      const signupRes = await rpc.api.auth.signup.$post({
-        json: testUser,
-      })
-      const signupData = await signupRes.json()
-      userId = signupData.user.id
-      token = signupData.token
-    })
-
     it("should verify token and return user data", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
       const res = await rpc.api.auth.verify.$get(
         {},
         {
@@ -202,6 +164,8 @@ describe("Auth Router", () => {
     })
 
     it("should return error for invalid token", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
       const res = await rpc.api.auth.verify.$get(
         {},
         {
@@ -215,3 +179,17 @@ describe("Auth Router", () => {
     })
   })
 })
+
+const testUser = {
+  email: "test@example.com",
+  password: "password123",
+  name: "Test User",
+}
+
+const signup = async (rpc: Rpc) => {
+  const res = await rpc.api.auth.signup.$post({
+    json: testUser,
+  })
+  const signupData = await res.json()
+  return { userId: signupData.user.id, token: signupData.token }
+}

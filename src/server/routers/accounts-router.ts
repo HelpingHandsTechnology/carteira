@@ -1,12 +1,12 @@
-import { Hono } from "hono"
-import { z } from "zod"
+import { AppError } from "@/lib/errors"
 import { zValidator } from "@hono/zod-validator"
-import { _db } from "../db"
+import { and, eq } from "drizzle-orm"
+import { Hono } from "hono"
+import { createMiddleware } from "hono/factory"
+import { z } from "zod"
+import { AppDeps } from "../app"
 import { Account, History } from "../db/schema"
 import { authMiddleware } from "../middlewares/auth"
-import { and, eq } from "drizzle-orm"
-import { AppError } from "@/lib/errors"
-import { createMiddleware } from "hono/factory"
 
 class AccountsModel {
   static createAccountSchema = z.object({
@@ -33,17 +33,18 @@ class AccountsModel {
 }
 
 const accountOwnerHasPermissionMiddleware = createMiddleware<{
-  Variables: {
+  Variables: AppDeps & {
     account: Account
     userId: string
   }
 }>(async (c, next) => {
+  const db = c.get("db")
   const userId = c.get("userId")
   const accountId = c.req.param("accountId")
   if (!accountId || !userId) {
     throw new AppError(400, { message: "Desculpe, não foi possível processar a solicitação." })
   }
-  const [account] = await _db.select().from(Account).where(eq(Account.id, accountId)).limit(1)
+  const [account] = await db.select().from(Account).where(eq(Account.id, accountId)).limit(1)
   if (!account) {
     throw new AppError(404, { message: "Conta não encontrada" })
   }
@@ -61,8 +62,9 @@ export const accountsRouter = new Hono()
   .post("/", zValidator("json", AccountsModel.createAccountSchema), async (c) => {
     const data = c.req.valid("json")
     const userId = c.get("userId")
+    const db = c.get("db")
 
-    const account = await _db.transaction(async (tx) => {
+    const account = await db.transaction(async (tx) => {
       const [account] = await tx
         .insert(Account)
         .values({
@@ -94,8 +96,9 @@ export const accountsRouter = new Hono()
   .get("/", zValidator("query", z.object({ status: AccountsModel.statusSchema })), async (c) => {
     const userId = c.get("userId")
     const status = c.req.valid("query").status
+    const db = c.get("db")
 
-    const accounts = await _db
+    const accounts = await db
       .select()
       .from(Account)
       .where(and(eq(Account.ownerId, userId), status ? eq(Account.status, status) : undefined))
@@ -103,10 +106,11 @@ export const accountsRouter = new Hono()
     return c.json(accounts)
   })
   .get("/:accountId", async (c) => {
+    const db = c.get("db")
     const userId = c.get("userId")
     const accountId = c.req.param("accountId")
 
-    const [account] = await _db.select().from(Account).where(eq(Account.id, accountId)).limit(1)
+    const [account] = await db.select().from(Account).where(eq(Account.id, accountId)).limit(1)
 
     if (!account) {
       throw new AppError(404, { message: "Conta não encontrada" })
@@ -123,6 +127,7 @@ export const accountsRouter = new Hono()
     accountOwnerHasPermissionMiddleware,
     zValidator("json", AccountsModel.updateAccountSchema),
     async (c) => {
+      const db = c.get("db")
       const userId = c.get("userId")
       const accountId = c.req.param("accountId")
       const data = c.req.valid("json")
@@ -132,7 +137,7 @@ export const accountsRouter = new Hono()
         throw new AppError(400, { message: "Cannot modify account owner" })
       }
 
-      const account = await _db.transaction(async (tx) => {
+      const account = await db.transaction(async (tx) => {
         const [account] = await tx.select().from(Account).where(eq(Account.id, accountId)).limit(1)
 
         if (!account) {
@@ -174,11 +179,12 @@ export const accountsRouter = new Hono()
     }
   )
   .delete("/:accountId", accountOwnerHasPermissionMiddleware, async (c) => {
+    const db = c.get("db")
     const userId = c.get("userId")
     const accountId = c.req.param("accountId")
     const account = c.get("account")
 
-    await _db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       const [deletedAccount] = await tx.delete(Account).where(eq(Account.id, accountId)).returning()
       if (!deletedAccount) {
         throw new AppError(404, { message: "Conta não encontrada" })

@@ -1,13 +1,29 @@
+import { AppError } from "@/lib/errors"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
-import { logger } from "hono/logger"
 import { prettyJSON } from "hono/pretty-json"
-import { authRouter } from "./routers/auth-router"
-import { accountsRouter } from "./routers/accounts-router"
+import { DbType } from "./db"
 import { loggerMiddleware } from "./middlewares/logger"
-import { HTTPException } from "hono/http-exception"
+import { accountsRouter } from "./routers/accounts-router"
+import { authRouter } from "./routers/auth-router"
+import { AuthService } from "./services/auth"
+import { DbService } from "./services/db"
 
-const app = new Hono()
+export type AppDeps = {
+  authService: AuthService
+  db: DbType
+}
+
+export const appWithoutDeps = new Hono<{ Variables: AppDeps }>()
+  .use("*", (c, next) => {
+    const checkDeps: (keyof AppDeps)[] = ["authService"]
+    checkDeps.forEach((dep) => {
+      if (!c.get(dep)) {
+        throw new AppError(500, { message: `${dep} not found` })
+      }
+    })
+    return next()
+  })
   .basePath("/api")
   .use("*", cors())
   .use("*", prettyJSON())
@@ -15,6 +31,13 @@ const app = new Hono()
   .route("/auth", authRouter)
   .route("/accounts", accountsRouter)
 
+const app = new Hono<{ Variables: AppDeps }>()
+  .use("*", (c, next) => {
+    c.set("db", DbService.db)
+    c.set("authService", new AuthService(DbService.db))
+    return next()
+  })
+  .route("/", appWithoutDeps)
 export type AppType = typeof app
 
 

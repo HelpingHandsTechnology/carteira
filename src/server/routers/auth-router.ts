@@ -1,13 +1,11 @@
-import { Hono } from "hono"
-import { z } from "zod"
-import { zValidator } from "@hono/zod-validator"
-import { authService, type AuthError } from "../services/auth"
-import { match } from "ts-pattern"
-import { COOKIE_KEYS, COOKIE_CONFIG } from "../constants"
-import { setCookie } from "hono/cookie"
-import { StatusCode } from "hono/utils/http-status"
-import { authMiddleware } from "../middlewares/auth"
 import { AppError } from "@/lib/errors"
+import { zValidator } from "@hono/zod-validator"
+import { Hono } from "hono"
+import { setCookie } from "hono/cookie"
+import { z } from "zod"
+import { AppDeps } from "../app"
+import { COOKIE_CONFIG, COOKIE_KEYS } from "../constants"
+import { authMiddleware } from "../middlewares/auth"
 
 export class AuthModel {
   static signUp = z.object({
@@ -22,9 +20,10 @@ export class AuthModel {
   })
 }
 
-export const authRouter = new Hono()
+export const authRouter = new Hono<{ Variables: AppDeps }>()
   .get("/me", authMiddleware, async (c) => {
     const userId = c.get("userId")
+    const authService = c.get("authService")
     const [result, error] = await authService.me(userId)
 
     if (error) {
@@ -36,6 +35,7 @@ export const authRouter = new Hono()
     return c.json(result)
   })
   .get("/verify", async (c) => {
+    const authService = c.get("authService")
     const token = c.req.header("Authorization")?.replace("Bearer ", "")
 
     if (!token) {
@@ -61,6 +61,7 @@ export const authRouter = new Hono()
     return c.json(user)
   })
   .post("/signup", zValidator("json", AuthModel.signUp), async (c) => {
+    const authService = c.get("authService")
     const data = c.req.valid("json")
     const [result, error] = await authService.signUp(data)
 
@@ -76,6 +77,7 @@ export const authRouter = new Hono()
     return c.json(result)
   })
   .post("/signin", zValidator("json", AuthModel.signIn), async (c) => {
+    const authService = c.get("authService")
     const data = c.req.valid("json")
     const [result, error] = await authService.signIn(data)
 
