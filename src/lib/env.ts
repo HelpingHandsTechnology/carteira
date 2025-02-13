@@ -13,7 +13,7 @@ export const env = createEnv({
   clientPrefix: "NEXT_PUBLIC_",
  
   client: {
-    NEXT_PUBLIC_URL: z.string().url().default(process.env.URL ?? '').optional(),
+    NEXT_PUBLIC_URL: z.string().url().default(process.env.NEXT_PUBLIC_URL ?? ''),
     },
   
   /**
