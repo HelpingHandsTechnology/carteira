@@ -6,6 +6,7 @@ import { z } from "zod"
 import { AppDeps } from "../app"
 import { COOKIE_CONFIG, COOKIE_KEYS } from "../constants"
 import { authMiddleware } from "../middlewares/auth"
+import { AuthService } from "../services/auth"
 
 export class AuthModel {
   static signUp = z.object({
@@ -44,7 +45,7 @@ export const authRouter = new Hono<{ Variables: AppDeps }>()
       })
     }
 
-    const [result, error] = await authService.verifyToken(token)
+    const [result, error] = await AuthService.verifyToken(token)
     if (error) {
       throw new AppError(401, {
         message: error.message,

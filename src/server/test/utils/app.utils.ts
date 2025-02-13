@@ -14,8 +14,13 @@ export const getMockedDeps = async (): Promise<AppDeps> => {
 }
 
 const servers = new Set<ServerType>()
+const ports = new Set<number>()
 export async function createApp() {
-  const port = Math.floor(Math.random() * 10000) + 3000
+  let port = Math.floor(Math.random() * 10000) + 3000
+  while (ports.has(port)) {
+    port = Math.floor(Math.random() * 10000) + 3000
+  }
+  ports.add(port)
 
   let time = performance.now()
   const deps = await getMockedDeps()
@@ -43,4 +48,5 @@ export const cleanupServers = async () => {
   servers.forEach((server) => {
     server.close()
   })
+  ports.clear()
 }

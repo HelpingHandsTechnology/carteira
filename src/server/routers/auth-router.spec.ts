@@ -158,6 +158,7 @@ describe("Auth Router", () => {
         }
       )
 
+      // console.log(await res.text())
       const data = await res.json()
       expect(data.email).toBe(testUser.email)
       expect(data.id).toBe(userId)

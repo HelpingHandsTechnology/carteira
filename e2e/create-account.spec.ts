@@ -1,4 +1,3 @@
-import { recreateDatabase } from "@/server/test/utils/database.utils"
 import { test as base, expect, Page } from "@playwright/test"
 
 // Test fixtures with custom types
@@ -51,7 +50,6 @@ const test = base.extend<TestFixtures>({
 test.describe("Account Creation", () => {
   test.beforeEach(async () => {
     console.log("Recreating database...")
-    await recreateDatabase()
   })
 
   test("should create an account and login successfully", async ({ page }) => {
