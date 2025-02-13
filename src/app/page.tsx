@@ -7,10 +7,12 @@ import { BottomCtaSection } from "./components/bototm-cta"
 import { RainbowButton } from "./components/rainbow-button"
 import Link from "next/link"
 import { Footer } from "./components/footer"
+import { env } from "@/lib/env"
 
 export default function Home() {
+  console.log({allClientEnv: env})
   return (
-    <main className="flex min-h-screen flex-col overflow-x-hidden">
+    <main className="flex flex-col min-h-screen overflow-x-hidden">
       <AuroraBackground>
         <PartnersSection className="" />
         <Link href="/login">
