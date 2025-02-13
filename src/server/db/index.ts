@@ -3,7 +3,6 @@ import { Pool } from "pg"
 import * as schema from "./schema"
 import { env } from "@/lib/env"
 
-console.log(env.DATABASE_URL)
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
 })
