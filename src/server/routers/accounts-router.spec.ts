@@ -1,17 +1,9 @@
-import { describe, expect, it, beforeAll, afterAll, beforeEach } from "bun:test"
-import { app } from "../app"
-import { _db } from "../db"
-import { Account, User } from "../db/schema"
 import { COOKIE_KEYS } from "../constants"
-import { recreateDatabase } from "../test/utils/database.utils"
-import { hc } from "hono/client"
-import { createAdaptorServer } from "@hono/node-server"
+import { cleanupServers, createApp, Rpc } from "../test/utils/app.utils"
 
 describe("Accounts Router", () => {
-  const rpc = hc<typeof app>("http://localhost:3001")
-  const server = createAdaptorServer({
-    fetch: app.fetch,
-    port: 3001,
+  afterAll(async () => {
+    cleanupServers()
   })
 
   const testUser = {
@@ -20,32 +12,13 @@ describe("Accounts Router", () => {
     name: "Test User",
   }
 
-  let userId: string
-  let token: string
-
-  beforeAll(async () => {
-    await recreateDatabase()
-    server.listen(3001)
-  })
-
-  afterAll(async () => {
-    await _db.delete(Account).execute()
-    await _db.delete(User).execute()
-    server.close()
-  })
-
-  beforeEach(async () => {
-    await _db.delete(Account).execute()
-    await _db.delete(User).execute()
-
-    // Create and sign in a user before each test
-    const signupRes = await rpc.api.auth.signup.$post({
+  const signup = async (rpc: Rpc) => {
+    const res = await rpc.api.auth.signup.$post({
       json: testUser,
     })
-    const signupData = await signupRes.json()
-    userId = signupData.user.id
-    token = signupData.token
-  })
+    const signupData = await res.json()
+    return { userId: signupData.user.id, token: signupData.token }
+  }
 
   describe("POST /accounts", () => {
     const testAccount = {
@@ -57,6 +30,9 @@ describe("Accounts Router", () => {
     }
 
     it("should create a new account successfully", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
       const res = await rpc.api.accounts.$post(
         { json: testAccount },
         {
@@ -75,6 +51,7 @@ describe("Accounts Router", () => {
     })
 
     it("should return error for unauthenticated request", async () => {
+      const rpc = await createApp()
       const res = await rpc.api.accounts.$post({
         json: testAccount,
       })
@@ -83,6 +60,8 @@ describe("Accounts Router", () => {
     })
 
     it("should validate required fields", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
       const invalidAccount = {
         serviceName: "",
         maxUsers: 0,
@@ -113,8 +92,11 @@ describe("Accounts Router", () => {
       price: "39.90",
     }
 
-    beforeEach(async () => {
-      // Create a test account before each test
+    it("should list user's accounts", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
+      // Create a test account
       await rpc.api.accounts.$post(
         { json: testAccount },
         {
@@ -123,9 +105,7 @@ describe("Accounts Router", () => {
           },
         }
       )
-    })
 
-    it("should list user's accounts", async () => {
       const res = await rpc.api.accounts.$get(
         { query: {} },
         {
@@ -143,6 +123,19 @@ describe("Accounts Router", () => {
     })
 
     it("should filter accounts by status", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
+      // Create a test account
+      await rpc.api.accounts.$post(
+        { json: testAccount },
+        {
+          headers: {
+            Cookie: `${COOKIE_KEYS.userId}=${userId}; ${COOKIE_KEYS.token}=${token}`,
+          },
+        }
+      )
+
       const res = await rpc.api.accounts.$get(
         { query: { status: "ACTIVE" } },
         {
@@ -162,9 +155,10 @@ describe("Accounts Router", () => {
   })
 
   describe("GET /accounts/:accountId", () => {
-    let accountId: string
+    it("should get account details", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
 
-    beforeEach(async () => {
       const testAccount = {
         serviceName: "Netflix",
         startDate: "2025-03-01T00:00:00Z",
@@ -173,7 +167,7 @@ describe("Accounts Router", () => {
         price: "39.90",
       }
 
-      const res = await rpc.api.accounts.$post(
+      const createRes = await rpc.api.accounts.$post(
         { json: testAccount },
         {
           headers: {
@@ -181,11 +175,9 @@ describe("Accounts Router", () => {
           },
         }
       )
-      const data = await res.json()
-      accountId = data.id
-    })
+      const createData = await createRes.json()
+      const accountId = createData.id
 
-    it("should get account details", async () => {
       const res = await rpc.api.accounts[":accountId"].$get(
         { param: { accountId } },
         {
@@ -201,6 +193,9 @@ describe("Accounts Router", () => {
     })
 
     it("should return error for non-existent account", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
       const res = await rpc.api.accounts[":accountId"].$get(
         { param: { accountId: "52deec36-3905-4d59-8f74-44114582bd58" } },
         {
@@ -215,9 +210,10 @@ describe("Accounts Router", () => {
   })
 
   describe("PATCH /accounts/:accountId", () => {
-    let accountId: string
+    it("should update account details", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
 
-    beforeEach(async () => {
       const testAccount = {
         serviceName: "Netflix",
         startDate: "2025-03-01T00:00:00Z",
@@ -226,7 +222,7 @@ describe("Accounts Router", () => {
         price: "39.90",
       }
 
-      const res = await rpc.api.accounts.$post(
+      const createRes = await rpc.api.accounts.$post(
         { json: testAccount },
         {
           headers: {
@@ -234,11 +230,9 @@ describe("Accounts Router", () => {
           },
         }
       )
-      const data = await res.json()
-      accountId = data.id
-    })
+      const createData = await createRes.json()
+      const accountId = createData.id
 
-    it("should update account details", async () => {
       const updateData = {
         maxUsers: 5,
         price: "49.90",
@@ -265,6 +259,28 @@ describe("Accounts Router", () => {
     })
 
     it("should prevent owner modification", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
+      const testAccount = {
+        serviceName: "Netflix",
+        startDate: "2025-03-01T00:00:00Z",
+        expirationDate: "2025-04-01T00:00:00Z",
+        maxUsers: 4,
+        price: "39.90",
+      }
+
+      const createRes = await rpc.api.accounts.$post(
+        { json: testAccount },
+        {
+          headers: {
+            Cookie: `${COOKIE_KEYS.userId}=${userId}; ${COOKIE_KEYS.token}=${token}`,
+          },
+        }
+      )
+      const createData = await createRes.json()
+      const accountId = createData.id
+
       const updateData = {
         ownerId: "different-user-id",
       }
@@ -287,9 +303,10 @@ describe("Accounts Router", () => {
   })
 
   describe("DELETE /accounts/:accountId", () => {
-    let accountId: string
+    it("should delete account", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
 
-    beforeEach(async () => {
       const testAccount = {
         serviceName: "Netflix",
         startDate: "2025-03-01T00:00:00Z",
@@ -298,7 +315,7 @@ describe("Accounts Router", () => {
         price: "39.90",
       }
 
-      const res = await rpc.api.accounts.$post(
+      const createRes = await rpc.api.accounts.$post(
         { json: testAccount },
         {
           headers: {
@@ -306,11 +323,9 @@ describe("Accounts Router", () => {
           },
         }
       )
-      const data = await res.json()
-      accountId = data.id
-    })
+      const createData = await createRes.json()
+      const accountId = createData.id
 
-    it("should delete account", async () => {
       const res = await rpc.api.accounts[":accountId"].$delete(
         { param: { accountId } },
         {
@@ -335,6 +350,29 @@ describe("Accounts Router", () => {
     })
 
     it("should prevent non-owner from deleting account", async () => {
+      const rpc = await createApp()
+      const { userId, token } = await signup(rpc)
+
+      // Create account with first user
+      const testAccount = {
+        serviceName: "Netflix",
+        startDate: "2025-03-01T00:00:00Z",
+        expirationDate: "2025-04-01T00:00:00Z",
+        maxUsers: 4,
+        price: "39.90",
+      }
+
+      const createRes = await rpc.api.accounts.$post(
+        { json: testAccount },
+        {
+          headers: {
+            Cookie: `${COOKIE_KEYS.userId}=${userId}; ${COOKIE_KEYS.token}=${token}`,
+          },
+        }
+      )
+      const createData = await createRes.json()
+      const accountId = createData.id
+
       // Create another user
       const anotherUser = {
         email: "another@example.com",

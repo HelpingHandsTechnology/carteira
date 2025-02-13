@@ -1,12 +1,12 @@
-import { COOKIE_KEYS } from "../constants"
-import { authService } from "../services/auth"
+import { AppError } from "@/lib/errors"
 import { getCookie } from "hono/cookie"
 import { createMiddleware } from "hono/factory"
-import { AppError } from "@/lib/errors"
-import { User } from "../db"
+import { AppDeps } from "../app"
+import { COOKIE_KEYS } from "../constants"
+import { AuthService } from "../services/auth"
 
 export const authMiddleware = createMiddleware<{
-  Variables: {
+  Variables: AppDeps & {
     userId: string
   }
 }>(async (c, next) => {
@@ -17,11 +17,11 @@ export const authMiddleware = createMiddleware<{
     throw new AppError(401, { message: "Usuário não autenticado" })
   }
 
-  const user = await authService.verifyToken(token)
-  if (user.isErr()) {
+  const [user, error] = await AuthService.verifyToken(token)
+  if (error) {
     throw new AppError(401, { message: "Usuário não autenticado" })
   }
 
-  c.set("userId", user.value.userId)
+  c.set("userId", user.userId)
   await next()
 })

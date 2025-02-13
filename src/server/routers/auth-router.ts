@@ -1,13 +1,12 @@
-import { Hono } from "hono"
-import { z } from "zod"
-import { zValidator } from "@hono/zod-validator"
-import { authService, type AuthError } from "../services/auth"
-import { match } from "ts-pattern"
-import { COOKIE_KEYS, COOKIE_CONFIG } from "../constants"
-import { setCookie } from "hono/cookie"
-import { StatusCode } from "hono/utils/http-status"
-import { authMiddleware } from "../middlewares/auth"
 import { AppError } from "@/lib/errors"
+import { zValidator } from "@hono/zod-validator"
+import { Hono } from "hono"
+import { setCookie } from "hono/cookie"
+import { z } from "zod"
+import { AppDeps } from "../app"
+import { COOKIE_CONFIG, COOKIE_KEYS } from "../constants"
+import { authMiddleware } from "../middlewares/auth"
+import { AuthService } from "../services/auth"
 
 export class AuthModel {
   static signUp = z.object({
@@ -22,20 +21,22 @@ export class AuthModel {
   })
 }
 
-export const authRouter = new Hono()
+export const authRouter = new Hono<{ Variables: AppDeps }>()
   .get("/me", authMiddleware, async (c) => {
     const userId = c.get("userId")
-    const result = await authService.me(userId)
+    const authService = c.get("authService")
+    const [result, error] = await authService.me(userId)
 
-    if (result.isErr()) {
+    if (error) {
       throw new AppError(401, {
-        message: result.error.message,
+        message: error.message,
       })
     }
 
-    return c.json(result.value)
+    return c.json(result)
   })
   .get("/verify", async (c) => {
+    const authService = c.get("authService")
     const token = c.req.header("Authorization")?.replace("Bearer ", "")
 
     if (!token) {
@@ -44,51 +45,53 @@ export const authRouter = new Hono()
       })
     }
 
-    const result = await authService.verifyToken(token)
-    if (result.isErr()) {
+    const [result, error] = await AuthService.verifyToken(token)
+    if (error) {
       throw new AppError(401, {
-        message: result.error.message,
+        message: error.message,
       })
     }
-    const user = await authService.me(String(result.value.userId))
+    const [user, userError] = await authService.me(String(result.userId))
 
-    if (user.isErr()) {
+    if (userError) {
       throw new AppError(401, {
-        message: user.error.message,
+        message: userError.message,
       })
     }
 
-    return c.json(user.value)
+    return c.json(user)
   })
   .post("/signup", zValidator("json", AuthModel.signUp), async (c) => {
+    const authService = c.get("authService")
     const data = c.req.valid("json")
-    const result = await authService.signUp(data)
+    const [result, error] = await authService.signUp(data)
 
-    if (result.isErr()) {
+    if (error) {
       throw new AppError(401, {
-        message: result.error.message,
+        message: error.message,
       })
     }
 
-    setCookie(c, COOKIE_KEYS.userId, String(result.value.user.id), COOKIE_CONFIG)
-    setCookie(c, COOKIE_KEYS.token, result.value.token, COOKIE_CONFIG)
+    setCookie(c, COOKIE_KEYS.userId, String(result.user.id), COOKIE_CONFIG)
+    setCookie(c, COOKIE_KEYS.token, result.token, COOKIE_CONFIG)
 
-    return c.json(result.value)
+    return c.json(result)
   })
   .post("/signin", zValidator("json", AuthModel.signIn), async (c) => {
+    const authService = c.get("authService")
     const data = c.req.valid("json")
-    const result = await authService.signIn(data)
+    const [result, error] = await authService.signIn(data)
 
-    if (result.isErr()) {
+    if (error) {
       throw new AppError(401, {
-        message: result.error.message,
+        message: error.message,
       })
     }
 
-    setCookie(c, COOKIE_KEYS.userId, String(result.value.user.id), COOKIE_CONFIG)
-    setCookie(c, COOKIE_KEYS.token, result.value.token, COOKIE_CONFIG)
+    setCookie(c, COOKIE_KEYS.userId, String(result.user.id), COOKIE_CONFIG)
+    setCookie(c, COOKIE_KEYS.token, result.token, COOKIE_CONFIG)
 
-    return c.json(result.value)
+    return c.json(result)
   })
   .post("/signout", async (c) => {
     setCookie(c, COOKIE_KEYS.userId, "", { ...COOKIE_CONFIG, maxAge: 0 })
