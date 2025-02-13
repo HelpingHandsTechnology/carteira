@@ -4,7 +4,7 @@ import * as schema from "./schema"
 import { env } from "@/lib/env"
 
 const pool = new Pool({
-  // connectionString: env.DATABASE_URL,
+  connectionString: env.DATABASE_URL,
 })
 
 export const _db = drizzle(pool, { schema })
