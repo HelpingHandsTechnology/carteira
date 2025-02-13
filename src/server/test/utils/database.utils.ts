@@ -6,7 +6,7 @@ import { promisify } from "util"
 const execAsync = promisify(exec)
 
 export async function recreateDatabase() {
-  const connectionString = process.env.TEST_DATABASE_URL
+  const connectionString = process.env.DATABASE_URL
 
   const pool = new Pool({ connectionString })
   const db = drizzle(pool)

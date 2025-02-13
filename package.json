@@ -5,16 +5,14 @@
   "scripts": {
     "build": "next build",
     "db:push": "drizzle-kit push",
-    "db:push:test": "dotenv -e .env drizzle-kit push --url=$TEST_DATABASE_URL --dialect=postgresql --schema=./src/server/db/schema.ts",
+    "db:push:test": "dotenv -e .env drizzle-kit push --url=$DATABASE_URL --dialect=postgresql --schema=./src/server/db/schema.ts",
     "db:studio": "drizzle-kit studio",
     "tscheck": "tsc --noEmit",
     "dev": "dotenv -e .env -- next dev",
-    "dev:server": "dotenv -e .env -- tsx watch src/server/index.ts",
     "lint": "next lint",
     "e2e": "NODE_ENV=test dotenv -e .env -- playwright test",
     "e2e:ui": "NODE_ENV=test dotenv -e .env -- playwright test --ui",
-    "start": "next start",
-    "start:server": "dotenv -e .env -- tsx src/server/index.ts"
+    "start": "next start"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
