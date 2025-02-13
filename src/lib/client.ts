@@ -1,3 +1,5 @@
 import { AppType } from "../server/app"
 import { hc } from "hono/client"
-export const client = hc<AppType>("http://localhost:3000")
+import { env } from "./env"
+
+export const client = hc<AppType>(env.URL)
