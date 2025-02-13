@@ -1,5 +1,10 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
+
+console.log({
+  allEnvs: process.env,
+})
+
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
@@ -13,7 +18,12 @@ export const env = createEnv({
   clientPrefix: "NEXT_PUBLIC_",
  
   client: {
-    NEXT_PUBLIC_URL: z.string().url().default(process.env.NEXT_PUBLIC_URL ?? ''),
+    NEXT_PUBLIC_URL: z.string().url().default(
+      process.env.NEXT_PUBLIC_SITE_URL ?? 
+      process.env.NEXT_PUBLIC_URL ?? 
+      process.env.URL ?? 
+      'http://localhost:3000'
+    ),
     },
   
   /**
