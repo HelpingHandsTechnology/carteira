@@ -11,10 +11,10 @@ export const env = createEnv({
    * The prefix that client-side variables must have. This is enforced both at
    * a type-level and at runtime.
    */
-  clientPrefix: "",
+  clientPrefix: "PUBLIC_",
  
   client: {
-    URL: z.string().url().default(process.env.URL ?? ''),
+    PUBLIC_URL: z.string().url().default(process.env.URL ?? 'http://localhost:3000'),
     },
   
   /**
