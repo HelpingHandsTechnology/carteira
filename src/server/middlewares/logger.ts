@@ -1,6 +1,6 @@
-import { env } from "@/lib/env"
+import { env } from "@/env"
 import chalk from "chalk"
-import type { MiddlewareHandler, Context, Next } from "hono"
+import type { Context, MiddlewareHandler, Next } from "hono"
 import { Signale } from "signale"
 
 export const logger = new Signale({

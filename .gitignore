@@ -14,6 +14,7 @@
 /out/
 playwright-report/
 .last-run.json
+sync-db
 
 # production
 /build

@@ -1,4 +1,4 @@
-import { env } from "@/lib/env"
+import { env } from "@/env"
 import { PGlite } from "@electric-sql/pglite"
 import { drizzle } from "drizzle-orm/node-postgres"
 import { drizzle as drizzlePglite } from "drizzle-orm/pglite"

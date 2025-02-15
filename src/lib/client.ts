@@ -1,5 +1,5 @@
-import { AppType } from "../server/app"
+import { env } from "@/env"
 import { hc } from "hono/client"
-import { env } from "./env"
+import { AppType } from "../server/app"
 
-export const client = hc<AppType>(env.URL)
+export const client = hc<AppType>(env.NEXT_PUBLIC_URL)
